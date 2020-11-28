@@ -27,12 +27,15 @@ pub(crate) fn extract_digits(s: &str) -> Result<(&str, &str), String> {
 	take_while1(|c| c.is_ascii_digit(), s, "expected digits".to_string())
 }
 
+
+const WHITESPACE: &[char] = &[' ', '\n'];
+
 pub(crate) fn extract_whitespace(s: &str) -> (&str, &str) {
-	take_while(|c| c == ' ', s)
+	take_while(|c| WHITESPACE.contains(&c), s)
 }
 
 pub(crate) fn extract_whitespace1(s: &str) -> Result<(&str, &str), String> {
-	take_while1(|c| c == ' ', s, "expected whitespace".to_string())
+	take_while1(|c| WHITESPACE.contains(&c), s, "expected a space".to_string())
 }
 
 pub(crate) fn extract_ident(s: &str) -> Result<(&str, &str), String> {
@@ -91,21 +94,17 @@ mod tests {
 	}
 
 	#[test]
+	fn extract_newlines_or_spaces() {
+		assert_eq!(extract_whitespace("\n  \n\nabc"), ("abc", "\n  \n\nabc"));
+	}
+
+	#[test]
 	fn do_not_extract_spaces1_when_input_does_not_start_with_them() {
 		assert_eq!(
 			extract_whitespace1("blah"),
 			Err("expected whitespace".to_string()),
 		);
 	}
-
-	#[test]
-	fn cannot_parse_binding_def_without_space_after_let() {
-		assert_eq!(
-			BindingDef::new("varaaa=1+2"),
-			Err("expected whitespace".to_string()),
-		);
-	}
-
 
 	#[test]
 	fn extract_alphabetic_ident() {
@@ -126,4 +125,6 @@ mod tests {
 	fn tag_word() {
 		assert_eq!(tag("let", "let a"), Ok(" a"));
 	}
+
+	
 }

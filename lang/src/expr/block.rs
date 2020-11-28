@@ -10,12 +10,17 @@ impl Block {
 	pub fn new(s: &str) -> Result<(&str, Self), String> {
 		let s = utils::tag("{", s)?;
 		let (s, _) = utils::extract_whitespace(s);
+
+		let mut s = s;
+		let mut stmts = Vec::new();
 		
-		let (s, stmts) = if let Ok((s, stmt)) = Stmt::new(s) {
-			(s, vec![stmt])
-		} else {
-			(s, Vec::new())
-		};
+		while let Ok((new_s, stmt)) = Stmt::new(s) {
+			s = new_s;
+			stmts.push(stmt);
+
+			let (new_s, _) = utils::extract_whitespace(s);
+			s = new_s;
+		}
 
 		let (s, _) = utils::extract_whitespace(s);
 		let s = utils::tag("}", s)?;
@@ -27,7 +32,7 @@ impl Block {
 
 #[cfg(test)]
 mod tests {
-	use super::super::{Expr, Number};
+	use super::super::{BindingUsage, Expr, Number};
 	use super::*;
 	use crate::binding_def::BindingDef;
 
@@ -67,10 +72,10 @@ mod tests {
 		assert_eq!(
 			Block::new(
 				"{
-			let a = 10
-			let b = a
-			b
-				}",
+    let a = 10
+    let b = a
+    b
+}",
 			),
 			Ok((
 				"",
@@ -82,9 +87,13 @@ mod tests {
 						}),
 						Stmt::BindingDef(BindingDef {
 							name: "b".to_string(),
-							val: ?,
+							val: Expr::BindingUsage(BindingUsage {
+								name: "a".to_string(),
+							}),
 						}),
-						Stmt::Expr(?),
+						Stmt::Expr(Expr::BindingUsage(BindingUsage {
+							name: "b".to_string(),
+						})),
 					],
 				},
 			)),

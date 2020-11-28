@@ -58,4 +58,12 @@ mod tests {
 			)),
 		);
 	}
+
+	#[test]
+	fn cannot_parse_binding_def_without_space_after_var() {
+		assert_eq!(
+			BindingDef::new("varaaa=1+2"),
+			Err("expected a space".to_string()),
+		);
+	}
 }
