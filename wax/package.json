@@ -1,0 +1,20 @@
+{
+  "name": "wax",
+  "version": "1.0.0",
+  "description": "The official package manager of the Qyri programming language.",
+  "main": "wax.js",
+  "bin" : {
+    "wax" : "./wax.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Xinovaz",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^6.2.0",
+    "dropbox": "^8.1.0",
+    "express": "^4.17.1",
+    "isomorphic-fetch": "^3.0.0"
+  }
+}
