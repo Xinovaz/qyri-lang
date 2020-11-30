@@ -2,9 +2,9 @@
   "name": "wax",
   "version": "1.0.0",
   "description": "The official package manager of the Qyri programming language.",
-  "main": "wax.js",
+  "main": "index.js",
   "bin" : {
-    "wax" : "./wax.js"
+    "wax" : "./index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
