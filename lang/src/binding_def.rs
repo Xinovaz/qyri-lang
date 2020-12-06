@@ -42,24 +42,6 @@ mod tests {
 	use crate::expr::{Number, Op};
 
 	#[test]
-	fn parse_binding_def() {
-		assert_eq!(
-			BindingDef::new("var a = 10 / 2"),
-			Ok((
-				"",
-				BindingDef {
-					name: "a".to_string(),
-					val: Expr::Operation {
-						lhs: Number(10),
-						rhs: Number(2),
-						op: Op::Div,
-					},
-				},
-			)),
-		);
-	}
-
-	#[test]
 	fn cannot_parse_binding_def_without_space_after_var() {
 		assert_eq!(
 			BindingDef::new("varaaa=1+2"),
