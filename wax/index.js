@@ -37,7 +37,7 @@ program // wax new
 		}
 
 		fs.mkdirSync(`./${name}`) // Create project parent folder
-		fs.writeFileSync(`./${name}/index.yaml`, // Create package data file
+		fs.writeFileSync(`./${name}/index.yml`, // Create package data file
 
 `---
 - metadata:
@@ -80,7 +80,7 @@ ignore: On
 				fs.writeFileSync(`./${name}/src/compile.qi`, ''); // Create compilation file
 			}
 		} else {
-			fs.mkdirSync(`./${name}/meta`);
+			fs.mkdirSync(`./${name}/meta`); // Create production metadata folder for licenses etc.
 		}
 
 
