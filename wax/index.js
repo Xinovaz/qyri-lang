@@ -16,7 +16,7 @@ var dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
 program // Basic Info
 	.version('0.0.1')
 	.name("wax")
-	.usage("command [options] [arguments]");
+	.usage("[options] command [options] [arguments]");
 
 program // Default options
 	.option('-d, --debug', 'run Wax in debug mode', false);
