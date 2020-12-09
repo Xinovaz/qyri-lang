@@ -1,7 +1,7 @@
 var expr = require("./expr");
+var con = require("./concatenate");
 
 
-
-var expression = expr.parse("3+10*100");
+var expression = expr.parse("\"Sam \" + \"is \" +  \"cool\"");
 
 console.log(expression);

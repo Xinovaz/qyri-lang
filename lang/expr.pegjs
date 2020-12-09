@@ -2,25 +2,39 @@
 	var type = require('./types');
 }
 
-start
-  = additive
+Expression
+  = head:Term tail:(_ ("+" / "-") _ Term)* {
+      return tail.reduce(function(result, element) {
+        if (element[1] === "+") { return result + element[3]; }
+        if (element[1] === "-") { return result - element[3]; }
+      }, head);
+    }
 
-additive
-  = left:multiplicative "+" right:additive { return left + right; }
-  / multiplicative
+Term
+  = head:Factor tail:(_ ("*" / "/") _ Factor)* {
+      return tail.reduce(function(result, element) {
+        if (element[1] === "*") { return result * element[3]; }
+        if (element[1] === "/") { return result / element[3]; }
+      }, head);
+    }
 
-multiplicative
-  = left:primary "*" right:multiplicative { return left * right; }
-  / primary
-
-primary
-  = integer
-  / "(" additive:additive ")" { return additive; }
-
-integer "integer"
-  = digits:[0-9]+ { return new type._integer(digits.join("")).canonical; }
+Factor
+  = "(" _ expr:Expression _ ")" { return expr; }
+  / integer
 
 
-word = char+
 
-char = [a-zA-Z0-9]
+integer "_integer"
+  = digits:number { return new type._integer(parseInt(digits.join(""))).canonical; }
+
+float "_float"
+  = digits:number?"."number { return new type._float(parseFloat(digits.join(""))).canonical; }
+
+
+
+digit = [0-9]
+number = digit+
+
+space = " "
+_ "whitespace"
+  = [ \t\n\r]*
