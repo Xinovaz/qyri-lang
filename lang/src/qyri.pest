@@ -1,0 +1,53 @@
+WHITESPACE = { WHITE_SPACE* }
+COMMENT = _{ ("//" ~ (!"\n" ~ ANY)*) | ("/*" ~ ANY ~ "*/") }
+
+integer = @{ "-"? ~ ASCII_DIGIT+ }
+float = @{ integer? ~ "." ~ ASCII_DIGIT+ }
+ident = @{ ASCII_APLHA ~ (ASCII_ALPHANUMERIC | "_")* }
+string = @{ ("'" ~ ( "\'" | (!"'" ~ ANY) )* ~ "'") }
+
+bwnot = { "~" }
+logicnot = { "!" }
+
+arithop = {
+	"+" | "-" | "*" | "/"
+}
+
+bwop = {
+	"&" | "|" | "^" | "<<" | ">>"
+}
+
+logicop = {
+	"&&" | "||" | "^^"
+}
+
+stdop = {
+	"==" | "!=" | "<" | ">" | "<=" | ">="
+}
+
+term = _{ float | integer | ident | "(" ~ expr ~ ")" }
+
+arithExpr = { expr ~ arithop ~ expr }
+logicExpr = { "(" ~ logicnot? ~ expr ~ logicop ~ logicnot? ~ expr ~  ")" }
+bwExpr = { "(" ~ bwnot? ~ expr ~ bwop ~ bwnot? ~ expr ~ ")" }
+conExpr = { "(" ~ expr ~ stdop ~ expr ~ ")" }
+
+fncallExpr = @{ ident ~ "(" ~ expr ~ ")" }
+kwExpr = { ident ~ expr }
+assgmtExpr = { "var" ~ ident ~ "=" ~ expr }
+
+expr = {
+	  assgmtExpr
+	| kwExpr
+	| fncallExpr
+	| arithExpr
+	| logicExpr
+	| bwExpr
+	| conExpr
+	| string
+	| term
+}
+
+stmt = _{ expr }
+
+program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+) * ~ stmt? ~ EOI }
