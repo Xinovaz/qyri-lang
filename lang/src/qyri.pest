@@ -5,6 +5,10 @@ integer = @{ "-"? ~ ASCII_DIGIT+ }
 float = @{ integer? ~ "." ~ ASCII_DIGIT+ }
 ident = @{ ASCII_APLHA ~ (ASCII_ALPHANUMERIC | "_")* }
 string = @{ ("'" ~ ( "\'" | (!"'" ~ ANY) )* ~ "'") }
+array = { "[" ~ (term ~ ",")* ~ term? ~ "]" }
+bool = _{ logicnot? ~ expr }
+
+block = { "{" ~ stmt* ~ "}" }
 
 bwnot = { "~" }
 logicnot = { "!" }
@@ -28,11 +32,11 @@ stdop = {
 term = _{ float | integer | ident | "(" ~ expr ~ ")" }
 
 arithExpr = { expr ~ arithop ~ expr }
-logicExpr = { "(" ~ logicnot? ~ expr ~ logicop ~ logicnot? ~ expr ~  ")" }
+logicExpr = { bool ~ logicop ~ bool }
 bwExpr = { "(" ~ bwnot? ~ expr ~ bwop ~ bwnot? ~ expr ~ ")" }
 conExpr = { "(" ~ expr ~ stdop ~ expr ~ ")" }
 
-fncallExpr = @{ ident ~ "(" ~ expr ~ ")" }
+fncallExpr = { ident ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
 kwExpr = { ident ~ expr }
 assgmtExpr = { "var" ~ ident ~ "=" ~ expr }
 
@@ -44,10 +48,12 @@ expr = {
 	| logicExpr
 	| bwExpr
 	| conExpr
+	| block
 	| string
+	| array
 	| term
 }
 
-stmt = _{ expr }
+stmt = _{ expr ~ ";" }
 
-program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+) * ~ stmt? ~ EOI }
+program = _{ SOI ~ stmt* | "\n"+ ~ EOI }
