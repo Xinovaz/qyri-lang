@@ -14,6 +14,30 @@ pub struct QyriParser;
 #[allow(non_snake_case)]
 let Env = HashMap::new();
 
+/*
+
+Out of the night that covers me,
+ Black as the pit from pole to pole,
+I thank whatever gods may be
+ For my unconquerable soul.
+
+In the fell clutch of circumstance
+ I have not winced nor cried aloud.
+Under the bludgeonings of chance
+ My head is bloody, but unbowed.
+
+Beyond this place of wrath and tears
+ Looms but the Horror of the shade,
+And yet the menace of the years
+ Finds and shall find me unafraid.
+
+It matters not how strait the gate,
+ How charged with punishments the scroll,
+I am the master of my fate,
+ I am the captain of my soul.
+
+*/
+
 
 pub enum ArithmeticOperation {
 	ADD, SUB, 
@@ -76,7 +100,10 @@ pub enum AstNode {
 	Array(Vec<AstNode>),	// [5, 6, "Damn, bro", datetime()]
 	Float(f64),				// 12.345
 
-	Block(Vec<AstNode>),	/* 
+	Block {
+		code: Vec<AstNode>,
+		env: HashMap<String, Box<AstNode>>,
+	},	/* 
 	{
 		var list = ["Hello", "world!"];
 		var list = join(list, ", ");
@@ -168,8 +195,15 @@ pub fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> AstNode {
 			let _ = pair.next().unwrap(); // open brace
 			let code = pair.next().unwrap(); // the code
 			let _ = pair.next().unwrap(); // closed brace
-			parse_code_block(code);
-		}, // TODO continue
+			parse_code_block(code); // do the code
+		}, 
+		Rule::string => {
+			let mut pair = pair.into_inner();
+			let _ = pair.next().unwrap(); // first quote
+			let text = pair.next().unwrap(); // string contents
+			let _ = pair.next().unwrap(); // end quote
+			parse_string(text); // the string itself
+		}, // TODO continue here
 	}
 }
 
@@ -183,6 +217,7 @@ parse_logic_expr	[ ]
 parse_bitw_expr		[ ]
 parse_condit_expr	[ ]
 parse_code_block	[ ]
+parse_string		[ ]
 
 parse_arith_op		[ ]
 parse_log_op		[ ]
