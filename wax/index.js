@@ -4,6 +4,7 @@
 
 require('isomorphic-fetch');
 var program = require('commander');
+const yaml = require('js-yaml');
 var fs = require('fs');
 
 
@@ -40,27 +41,27 @@ program // wax new
 		fs.writeFileSync(`./${name}/index.yml`, // Create package data file
 
 `---
-- metadata:
+metadata:
   name: ${name}
   authors:
     - ${authorstr}
   version: a0.0.1
 
-- dependencies:
-  null`
+dependencies:
+  - `
 		);
 		fs.writeFileSync(`./${name}/anchor.yml`,
 `---
 - ${name}
-- 00
+- '00'
 - |-
   ${require('os').userInfo().username}
   as
   ${authors[0]}
-
-# Replace 'On' with 'Off' to activate your package.
-ignore: On
-`
+...
+---
+# Replace 'TRUE' with 'FALSE' to activate your package.
+ignore: TRUE`
 		);
 
 
@@ -86,6 +87,34 @@ ignore: On
 
 
 	});
+
+program // wax verify
+	.command('verify')
+	.option('-n, --encoding', 'search for a YAML anchor with an encoding', 'utf8')
+	.description('verify a directory as a Qyri project')
+	.action((cmd) => {
+		try {
+			// get the anchor
+			const anchor = yaml.safeLoadAll(fs.readFileSync(process.cwd() + "/anchor.yml", cmd.encoding));
+			// verify the anchor
+			if (anchor[0][1] == '00') {
+				if (anchor[1]['ignore']) {
+					console.log('This project is valid, but the ignore flag is set.');
+				} else {
+					console.log('This project is valid.')
+				}
+			}
+		} catch (e) {
+			if (e.code == 'ENOENT') {
+				console.log("Wax could not find anchor.yml in this directory. Try changing anchor.yaml to anchor.yml.");
+				process.exit();
+			} else {
+				console.log(e);
+			}
+		}
+	});
+
+
 
 // Use from command line
 program.parse(process.argv);

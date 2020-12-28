@@ -1,0 +1,3 @@
+fn main = function(out Void) {
+	print("Hello, world!");
+}

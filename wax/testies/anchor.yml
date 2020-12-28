@@ -1,0 +1,11 @@
+---
+- testies
+- '00'
+- |-
+  xinovaz
+  as
+  lazy
+...
+---
+# Replace 'TRUE' with 'FALSE' to activate your package.
+ignore: FALSE
