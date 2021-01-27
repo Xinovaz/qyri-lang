@@ -16,6 +16,14 @@ let Env = HashMap::new();
 
 /*
 
+Dear reader of this code:
+I know not how you got here, as of now I have not even
+finished evaluating the grammar of the Qyri code.
+
+However, you will need something to get through this code,
+because it blows. So I present to you a poem.
+
+"
 Out of the night that covers me,
  Black as the pit from pole to pole,
 I thank whatever gods may be
@@ -35,7 +43,9 @@ It matters not how strait the gate,
  How charged with punishments the scroll,
 I am the master of my fate,
  I am the captain of my soul.
+"
 
+-- W.E. Henley
 */
 
 
