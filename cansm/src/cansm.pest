@@ -1,7 +1,9 @@
 COMMENT = _{";" ~ ANY*}
 
-number = { ASCII_DIGIT+ }
+number = _{ ASCII_DIGIT+ }
 variable = { "$" ~ ASCII_ALPHA+ }
 label = { "." ~ ASCII_ALPHA+ ~ ":" }
 
-statement = { ASCII_ALPHA+ ~ (number | variable)* }
+assgn = { variable ~ "=" ~ number }
+
+statement = { ASCII_ALPHA+ ~ ((number | variable)? ~ (number | variable)?) }
