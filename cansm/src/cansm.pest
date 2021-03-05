@@ -1,9 +1,0 @@
-COMMENT = _{";" ~ ANY*}
-
-number = _{ ASCII_DIGIT+ }
-variable = { "$" ~ ASCII_ALPHA+ }
-label = { "." ~ ASCII_ALPHA+ ~ ":" }
-
-assgn = { variable ~ "=" ~ number }
-
-statement = { ASCII_ALPHA+ ~ ((number | variable)? ~ (number | variable)?) }
