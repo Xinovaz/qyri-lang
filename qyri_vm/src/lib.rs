@@ -5,7 +5,7 @@ use stack_vm::{Instruction,
 			WriteManyTable,
 			Code,
 }; // Generic stack-based VM. Thanks, Jimsy!
-pub type Operand = u32; // Operands are u32
+pub type Operand = i32; // Operands are i32
 
 /*
 The following functions are QyriVM Instructions.
