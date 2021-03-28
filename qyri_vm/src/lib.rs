@@ -131,6 +131,8 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 	instruction_table.insert(Instruction::new(7, "write", 0, write));
 	instruction_table.insert(Instruction::new(8, "lrd", 0, long_read));
 	instruction_table.insert(Instruction::new(9, "print", 1, prt));
+	instruction_table.insert(Instruction::new(10, "call", 1, call));
+	instruction_table.insert(Instruction::new(11, "return", 1, ret));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 
