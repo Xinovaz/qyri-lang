@@ -61,7 +61,7 @@ fn div(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 // Standard I/O
 
-fn read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes 1 i32
+fn read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes 1 u32
 	let mut buffer = String::new();
 	io::stdin()
 		.read_line(&mut buffer)
@@ -72,7 +72,7 @@ fn read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes 1 i32
 	}
 }
 
-fn long_read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes str as i32s
+fn long_read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes str as u32s
 	let mut buffer = String::new();
 	io::stdin()
 		.read_line(&mut buffer)
@@ -91,7 +91,7 @@ fn write(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 fn prt(machine: &mut Machine<Operand>, args: &[usize]) {
 	let mut out: Vec<u8> = vec![];
-	for i in 0..*machine.get_data(args[0]) + 2 {
+	for i in 0..*machine.get_data(args[0]) {
 		let ch: u8 = op_to_word(machine.operand_pop().clone());
 		out.push(ch);
 	}
@@ -100,7 +100,7 @@ fn prt(machine: &mut Machine<Operand>, args: &[usize]) {
 		Ok(v) => v,
 		Err(e) => panic!("invalid UTF-8 series: {}", e),
 	};
-	println!("{}", f);
+	print!("{}", f);
 	io::stdout().flush().expect("failed to flush stdout")
 }
 
