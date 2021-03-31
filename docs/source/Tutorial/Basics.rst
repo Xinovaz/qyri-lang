@@ -44,7 +44,7 @@ In case you skipped every grade, ``x`` would equal 4, ``y`` would equal 16, and 
 
 ``n`` in this case would equal 4, rather than 16. This brings me to my next point, which is that infix operators, such as ```mod` ``, are at the bottom of the order. So, if we do this:
 
-``var x = 4 + 4 `mod` 3``
+``var x = 4 + 4 `mod` 3;``
 
 ``x`` would equal 2.
 
