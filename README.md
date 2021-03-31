@@ -15,6 +15,7 @@ Don't use Qyri if you aren't focused on lightweight shipping. As well as this, t
 // fizzbuzz.qi
 
 using std.io.print;
+using mod, PI from math;
 
 fn fizzbuzz = (n: int) $ str {
 	if n `mod` 15 == 0 {
@@ -31,6 +32,10 @@ fn fizzbuzz = (n: int) $ str {
 fn main = () {
 	for (var i = 0; i < 128; i++) {
 		print(fizzbuzz(i));
+	}
+	
+	except fizzbuzz(PI) {
+		print("Pi is a constant of type float and will raise an exception.");
 	}
 }
 ```
