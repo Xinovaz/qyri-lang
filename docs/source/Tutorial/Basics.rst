@@ -129,4 +129,91 @@ as is this:
 
 ``() {}``
 
-is an anonymous function. So, why implement the ``fn`` keyword if ``var`` and ``const`` are available. Well, they all do different things. When you declare a function using ``fn``, what you're doing is telling Qyri that whatever function name you use is now permanently allocated to that function, and it is unusable for any variable or constant. Conversely, using ``const`` will do that, but prevent you from using the function's return value, and you must call the function as a keyword. It acts as a ``void`` function, except instead of passing ``null`` it passes an error. Don't use it unless you're more cleverer than I. Lastly, the ``var`` method of declaration allows the function's name to be mutable, meaning you can later use that name for a variable, constant, or other function. This is rarely useful, but it's implemented and there's nothing you can do about it.
+is an anonymous function. So, why implement the ``fn`` keyword if ``var`` and ``const`` are available. Well, they all do different things. When you declare a function using ``fn``, what you're doing is telling Qyri that whatever function name you use is now permanently allocated to that function, and it is unusable for any variable or constant. 
+
+Conversely, using ``const`` will do that, but prevent you from using the function's return value, and you *must* call the function as a keyword, like so:
+::
+	add 2, 3;
+
+Lastly, the ``var`` method of declaration allows the function's name to be mutable, meaning you can later use that name for a variable, constant, or other function. This is rarely useful, but it's implemented and there's nothing you can do about it.
+
+.. _structs:
+
+Structures
+=======
+**Whactures?**
+
+``struct``ures! A ``struct`` is a composite data type that allows a programmer such as yourself to generate their own grouped list of variables that are allocated separately from other variables. They act as objects or classes, and their fields are private by default.
+
+There are two types of ``struct``s in Qyri:
+1. Generic struct, this serves as an abstraction.
+2. Membered struct, which houses several fields in which to input values.
+
+Here's an example of a generic ``struct``:
+::
+	struct EndNode;
+
+And a membered ``struct``:
+::
+	struct Point {
+		x,
+		y,
+	}
+
+And here's a membered ``struct`` in a statically-typed fashion:
+::
+	struct Point  {
+		x: int,
+		y: int,
+	}
+
+.. note::
+	Notice the variables syntax in statically-typed programs. It always looks like this: ``variable: type``. This is how Qyri interprets a variable as being statically-typed.
+
+	Also, a ``struct`` can be typed too. Check it:
+	::
+		struct Point: int {
+			x: type(self),
+			y: type(self),
+		}
+
+	One last thing to note is the naming conventions here. Just as variables, constants, and functions have naming conventions, ``structs`` do too. Write ``struct`` names in CamelCase. Pretty please.
+
+Structs aren't just records, though. Structs can be extended to advanced uses, and implemented with methods. Here's how you do that:
+::
+	// First, initalise your struct
+	struct Point {
+		x: int
+		y: int
+	}
+
+	// Next, do this thingy
+
+	Point -> {
+		// Write your functions in here
+
+		// Every time a struct has a 'new' method, it acts as a constructor
+		fn new = (x: int, y: int) $ Point {
+			return Point {
+				x -> x
+				y -> y
+			};
+		}
+
+		fn inverted = () $ Point{
+			return Point {
+				x -> self.y
+				y -> self.x
+			};
+		}
+	};
+
+	// You can now do something like this:
+
+	var arbitrary_point = Point(4, 5);
+	var flipped = arbitrary_point.inverted();
+	// This is the same:
+	var again = inverted(arbitrary_point);
+
+	// And don't forget pipe-forward
+	var point = Point(2, 3) |> inverted; // Resolves to Point(3, 2)
