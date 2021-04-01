@@ -13,6 +13,7 @@ Table of contents:
 #. :ref:`Functions <functions>`
 
 .. _variables:
+
 Declaring variables
 ===================
 **The naming ceremony...**
@@ -32,6 +33,7 @@ Note that the name of this constant is capitalized. Qyri's job is took be simple
 
 
 .. _arithmetic:
+
 Arithmetic
 ==========
 **They did the math, they did the monster math...**
@@ -55,6 +57,7 @@ In case you skipped every grade, ``x`` would equal 4, ``y`` would equal 16, and 
 
 
 .. _functions:
+
 Declaring and Using Functions
 =============================
 **We all live in a dysfunctional family in one way or another...**
