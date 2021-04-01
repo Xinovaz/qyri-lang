@@ -1,3 +1,4 @@
+.. _start:
 The Basics!
 ===========
 The what?
@@ -32,11 +33,12 @@ They did the math, they did the monster math...
 
 Qyri supports arithmetic. Obviously. Check it:
 
-``
-var x = 2 + 2;
-var y = x * 4;
-var z = x * y - 4;
-``
+.. code-block:: _
+	:linenos:
+	var x = 2 + 2;
+	var y = x * 4;
+	var z = x * y - 4;
+
 
 In case you skipped every grade, ``x`` would equal 4, ``y`` would equal 16, and ``z`` 60. Qyri also supports the order of operations, as you would hope. As in:
 
@@ -67,15 +69,19 @@ That variable name is longer than you expected. Notice I used snake case like I 
 
 Ok, you're like, "Yo, functions are supes dope, dawg. Can I, like, totes make my own?" and I'm like, "Yeah dawg, don't even trip."
 
-``fn add = (x, y) {
-	return x + y;
-}``
+.. code-block:: _
+	:linenos:
+	fn add = (x, y) {
+		return x + y;
+	}
 
 F█cking delicious. It might look a little different than what you're used to, but I assure you it works the same way. Now, the example I just showed you is fairly simple, and Qyri is dynamically-typed, so this isn't an issue. Unless, for some reason, you're working in a statically-typed program. In this case, everything in your code should be statically-typed. This is how that'd look:
 
-``fn add = (x: int, y: int) $ int {
-	return x + y;
-}``
+.. code-block:: _
+	:linenos:
+	fn add = (x: int, y: int) $ int {
+		return x + y;
+	}
 
 Pretty straightforward. The ``$`` operator tells Qyri that whatever comes after it is the type that's being returned.
 
@@ -85,9 +91,11 @@ Qyri is multi-paradigm. Qyri is both imperative *and* functional. So, what? So, 
 
 If you prefer that your two-parameter function not be infixed, you can define it with a tilda concatenated to the beginning of your function name, like so:
 
-``fn ~add = (x: int, y: int) $ int {
-	return x + y;
-}``
+.. code-block:: _
+	:linenos:
+	fn ~add = (x: int, y: int) $ int {
+		return x + y;
+	}
 
 The reason I chose such a rarely-used character is *because of the fact*! Infix operators rock, and this is **my** programming language, and I say that if you want to write a biparametral function you're forced to flex your pinky weird.
 
@@ -99,30 +107,33 @@ Instead of this:
 
 you can write this:
 
-``2 * PI * r
-|> math.cot
-|> print;``
+.. code-block:: _
+	:linenos:
+	2 * PI * r
+	|> math.cot
+	|> print;
 
 which is slightly more readable and makes your wife love you more. Sike.
 
 Functions come in different flavours, like ice cream, only codier. For example, this is valid, too:
 
-``
-var add = (x, y) {
-	return x + y;
-}
-``
+.. code-block:: _
+	:linenos:
+	var add = (x, y) {
+		return x + y;
+	}
 
 as is this:
 
-``
-const add = (x, y) {
-	return x + y;
-}
-``
+.. code-block:: _
+	:linenos:
+	const add = (x, y) {
+		return x + y;
+	}
+
 
 "（ミ￣ー￣ミ）what? ``add`` isn't a variable, it's a funct-- ohhhh." You get it now. This syntax:
 
 ``() {}``
 
-is an anonymous function. So, why implement the ``fn`` keyword if ``var`` and ``const`` are available. Well, they all do different things. When you declare a function using ``fn``, what you're doing is telling Qyri that whatever function name you use is now permanently allocated to that function, and it is unusable for any variable or constant. Conversely, using ``const`` will do that, but prevent you from using the function's return value. It acts as a ``void`` function, except instead of passing ``null`` it passes an error. Don't use it unless you're more cleverer than I. Lastly, the ``var`` method of declaration allows the function's name to be mutable, meaning you can later use that name for a variable, constant, or other function. This is rarely useful, but it's implemented and there's nothing you can do about it.
+is an anonymous function. So, why implement the ``fn`` keyword if ``var`` and ``const`` are available. Well, they all do different things. When you declare a function using ``fn``, what you're doing is telling Qyri that whatever function name you use is now permanently allocated to that function, and it is unusable for any variable or constant. Conversely, using ``const`` will do that, but prevent you from using the function's return value, and you must call the function as a keyword. It acts as a ``void`` function, except instead of passing ``null`` it passes an error. Don't use it unless you're more cleverer than I. Lastly, the ``var`` method of declaration allows the function's name to be mutable, meaning you can later use that name for a variable, constant, or other function. This is rarely useful, but it's implemented and there's nothing you can do about it.
