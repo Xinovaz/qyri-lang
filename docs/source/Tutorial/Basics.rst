@@ -31,7 +31,8 @@ Arithmetic
 They did the math, they did the monster math...
 -----------------------------------------------
 
-Qyri supports arithmetic. Obviously. Check it::
+Qyri supports arithmetic. Obviously. Check it
+::
 	var x = 2 + 2;
 	var y = x * 4;
 	var z = x * y - 4;
@@ -70,8 +71,8 @@ Ok, you're like, "Yo, functions are supes dope, dawg. Can I, like, totes make my
 		return x + y;
 	}
 
-F█cking delicious. It might look a little different than what you're used to, but I assure you it works the same way. Now, the example I just showed you is fairly simple, and Qyri is dynamically-typed, so this isn't an issue. Unless, for some reason, you're working in a statically-typed program. In this case, everything in your code should be statically-typed. This is how that'd look::
-
+F█cking delicious. It might look a little different than what you're used to, but I assure you it works the same way. Now, the example I just showed you is fairly simple, and Qyri is dynamically-typed, so this isn't an issue. Unless, for some reason, you're working in a statically-typed program. In this case, everything in your code should be statically-typed. This is how that'd look:
+::
 	fn add = (x: int, y: int) $ int {
 		return x + y;
 	}
@@ -82,7 +83,8 @@ Qyri is multi-paradigm. Qyri is both imperative *and* functional. So, what? So, 
 
 ``var five = 2 `add` 3;``
 
-If you prefer that your two-parameter function not be infixed, you can define it with a tilda concatenated to the beginning of your function name, like so::
+If you prefer that your two-parameter function not be infixed, you can define it with a tilda concatenated to the beginning of your function name, like so:
+::
 	fn ~add = (x: int, y: int) $ int {
 		return x + y;
 	}
@@ -95,22 +97,22 @@ Instead of this:
 
 ``print(math.cot(2 * PI * r));``
 
-you can write this::
-
+you can write this:
+::
 	2 * PI * r
 	|> math.cot
 	|> print;
 
 which is slightly more readable and makes your wife love you more. Sike.
 
-Functions come in different flavours, like ice cream, only codier. For example, this is valid, too::
-
+Functions come in different flavours, like ice cream, only codier. For example, this is valid, too:
+::
 	var add = (x, y) {
 		return x + y;
 	}
 
-as is this::
-
+as is this:
+::
 	const add = (x, y) {
 		return x + y;
 	}
