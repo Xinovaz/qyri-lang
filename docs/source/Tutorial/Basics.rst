@@ -11,6 +11,7 @@ Table of contents:
 #. :ref:`Variables <variables>`
 #. :ref:`Arithmetic <arithmetic>`
 #. :ref:`Functions <functions>`
+#. :ref:`Structures <structs>`
 
 .. _variables:
 
@@ -143,7 +144,7 @@ Structures
 =======
 **Whactures?**
 
-``struct``ures! A ``struct`` is a composite data type that allows a programmer such as yourself to generate their own grouped list of variables that are allocated separately from other variables. They act as objects or classes, and their fields are private by default.
+``struct`` ures! A ``struct`` is a composite data type that allows a programmer such as yourself to generate their own grouped list of variables that are allocated separately from other variables. They act as objects or classes, and their fields are private by default.
 
 There are two types of ``struct``s in Qyri:
 1. Generic struct, this serves as an abstraction.
