@@ -4,7 +4,7 @@ The Basics!
 The what?
 ---------
 
-I said, the *basics*! The building blocks of your learning experience! Every programmer has to learn something, at some point in their life. I think that goes for everyone. But nobody really *wants* to sit down and learn. But, you have to. So, top reading this, and go to the next section.
+I said, the *basics*! The building blocks of your learning experience! Every programmer has to learn something, at some point in their life. I think that goes for everyone. But nobody really *wants* to sit down and learn. But, you have to. So, stop reading this, and go to the next section.
 
 .. _variables:
 Declaring variables
