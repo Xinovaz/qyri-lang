@@ -6,7 +6,13 @@ The what?
 
 I said, the *basics*! The building blocks of your learning experience! Every programmer has to learn something, at some point in their life. I think that goes for everyone. But nobody really *wants* to sit down and learn. But, you have to. So, stop reading this, and go to the next section.
 
-.. _variables:
+Table of contents:
+------------------
+* :ref:`Variables`
+* :ref:`Arithmetic`
+* :ref:`Functions`
+
+.. _Variables:
 Declaring variables
 ===================
 The naming ceremony...
@@ -25,7 +31,7 @@ Variables in Qyri are mutable by default. An immutable variable is called a ``co
 Note that the name of this constant is capitalized. Qyri's job is took be simple and intuitive, but also readable and extendable. Thus, Qyri holds a few style properties that keep your code understandable. Constants are in SCREAMING_SNAKE_CASE and variables are in sneaky_snake_case.
 
 
-.. _arithmetic:
+.. _Arithmetic:
 Arithmetic
 ==========
 They did the math, they did the monster math...
@@ -49,7 +55,7 @@ In case you skipped every grade, ``x`` would equal 4, ``y`` would equal 16, and 
 ``x`` would equal 2.
 
 
-.. _functions:
+.. _Functions:
 Declaring and Using Functions
 =============================
 We all live in a dysfunctional family in one way or another...
