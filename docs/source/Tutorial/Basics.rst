@@ -15,8 +15,8 @@ Table of contents:
 .. _Variables:
 Declaring variables
 ===================
-The naming ceremony...
-----------------------
+**The naming ceremony...**
+
 
 Qyri has a very simple syntax for declaring variables:
 
@@ -34,8 +34,7 @@ Note that the name of this constant is capitalized. Qyri's job is took be simple
 .. _Arithmetic:
 Arithmetic
 ==========
-They did the math, they did the monster math...
------------------------------------------------
+**They did the math, they did the monster math...**
 
 Qyri supports arithmetic. Obviously. Check it
 ::
@@ -58,8 +57,7 @@ In case you skipped every grade, ``x`` would equal 4, ``y`` would equal 16, and 
 .. _Functions:
 Declaring and Using Functions
 =============================
-We all live in a dysfunctional family in one way or another...
---------------------------------------------------------------
+**We all live in a dysfunctional family in one way or another...**
 
 Functions are exactly the same in Qyri as almost any other language:
 
