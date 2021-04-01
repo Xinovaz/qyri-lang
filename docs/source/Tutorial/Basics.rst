@@ -156,14 +156,14 @@ Here's an example of a generic ``struct``:
 
 And a membered ``struct``:
 ::
-	struct Point {
+	struct Point = {
 		x,
 		y,
 	}
 
 And here's a membered ``struct`` in a statically-typed fashion:
 ::
-	struct Point  {
+	struct Point = {
 		x: int,
 		y: int,
 	}
@@ -173,7 +173,7 @@ And here's a membered ``struct`` in a statically-typed fashion:
 
 	Also, a ``struct`` can be typed too. Check it:
 	::
-		struct Point: int {
+		struct Point: int = {
 			x: type(self),
 			y: type(self),
 		}
@@ -183,7 +183,7 @@ And here's a membered ``struct`` in a statically-typed fashion:
 Structs aren't just records, though. Structs can be extended to advanced uses, and implemented with methods. Here's how you do that:
 ::
 	// First, initalise your struct
-	struct Point {
+	struct Point = {
 		x: int
 		y: int
 	}
