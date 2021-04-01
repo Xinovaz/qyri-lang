@@ -8,9 +8,9 @@ I said, the *basics*! The building blocks of your learning experience! Every pro
 
 Table of contents:
 ------------------
-#. :ref:`Variables`
-#. :ref:`Arithmetic`
-#. :ref:`Functions`
+#. :ref:`Variables <Variables>`
+#. :ref:`Arithmetic <Arithmetic>`
+#. :ref:`Functions <Functions>`
 
 .. _Variables:
 Declaring variables
