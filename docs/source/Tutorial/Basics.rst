@@ -6,16 +6,18 @@ The what?
 
 I said, the *basics*! The building blocks of your learning experience! Every programmer has to learn something, at some point in their life. I think that goes for everyone. But nobody really *wants* to sit down and learn. But, you have to. So, stop reading this, and go to the next section.
 
-Table of contents:
+Table of Contents:
 ------------------
 #. :ref:`Variables <variables>`
 #. :ref:`Arithmetic <arithmetic>`
 #. :ref:`Functions <functions>`
 #. :ref:`Structures <structs>`
+#. :ref:`Types <types>`
+#. :ref:`Enumerations <enums>`
 
 .. _variables:
 
-Declaring variables
+Declaring Variables
 ===================
 **The naming ceremony...**
 
@@ -174,8 +176,8 @@ And here's a membered ``struct`` in a statically-typed fashion:
 	Also, a ``struct`` can be typed too. Check it:
 	::
 		struct Point: int = {
-			x: type(self),
-			y: type(self),
+			x: typeof(self),
+			y: typeof(self),
 		}
 
 	One last thing to note is the naming conventions here. Just as variables, constants, and functions have naming conventions, ``structs`` do too. Write ``struct`` names in CamelCase. Pretty please.
@@ -196,15 +198,15 @@ Structs aren't just records, though. Structs can be extended to advanced uses, a
 		// Every time a struct has a 'new' method, it acts as a constructor
 		fn new = (x: int, y: int) $ Point {
 			return Point {
-				x -> x
-				y -> y
+				x -> x,
+				y -> y,
 			};
 		}
 
 		fn inverted = () $ Point{
 			return Point {
-				x -> self.y
-				y -> self.x
+				x -> self.y,
+				y -> self.x,
 			};
 		}
 	};
@@ -216,5 +218,89 @@ Structs aren't just records, though. Structs can be extended to advanced uses, a
 	// This is the same:
 	var again = inverted(arbitrary_point);
 
-	// And don't forget pipe-forward
+	// And don't forget about the pipe-forward operator
 	var point = Point(2, 3) |> inverted; // Resolves to Point(3, 2)
+
+If you're a keen-eyed person, you might have noticed a couple interesting things.
+
+The first thing you'll note is the ``->`` operator. This is called the "structure frame operator," and it serves an important purpose when it comes to structs. First, when its left side is a ``struct``, it expects the right side to be a scope, which is a section of code whose memory differs from the base's. When its left side is an identifier, the operator expects to be in a canonical ``struct``. It then takes the right side, which could be any expression or value, and smushes it into the field pertaining to the identifier on the left side of the operator.
+
+.. note::
+	The "canonical" form of an object is its notation before being loaded into Qyri's memory, such as a raw expression ``2 + 2 - 3`` or the definition of a new struct:
+	::
+		Stack {
+			memory -> []
+		}
+
+	What's important to note is that canonical forms that aren't instructed to load into memory (via storage in variable or other container) aren't. This means that you can write comments that are actually strings, like in Python. However, I suggest that you just use comments to prevent confusion and clutter.
+
+The second thing you might notice is that there's a semicolon at the end of the
+::
+	Point -> {/*...*/}
+section. This is simply because ``->`` is an operator, so we're really writing an expression.
+
+.. _types:
+
+Types
+=====
+**You just aren't mine...**
+
+Most language's documentation include the "types" section much earlier. However, I wanted to introduce the more important information before listing types. This will play into our next section, too.
+
+There are 10 different base types in Qyri, and they go as follows:
+* ``int``
+* ``bool``
+* ``null``
+* ``str``
+* ``float``
+* ``double``
+* ``byte``
+* ``word``
+* ``long``
+* ``type``
+
+Yes, there's a type type. Allow me to explain each and every one of them, in excruciating detail.
+
+* An ``int`` is a signed 32-bit integer.
+* A ``bool`` is either true or false.
+* ``null`` Is a value that signifies nothing.
+* A ``str`` is a string, which is an ASCII-ized array of ``byte``s.
+* A ``float`` is a signed 16-bit floating point number.
+* A ``double`` is a signed 32-bit floating point number.
+* A ``byte`` is an unsigned 8-bit integer.
+* A ``word`` is an unsigned 16-bit integer.
+* A ``long`` is an unsigned 32-bit integer. 
+* A ``type`` is a type that signifies a type. I know that's a bit confusing, but if, say, a function wanted to convert one type of integer to another, it would want the number and the type to convert to.
+
+That's all you really need to know about types, they're just generic identifiers. You can always get the ``type`` of a variable or object by calling the ``typeof()`` function on it.
+
+.. _enums:
+
+Enumerations
+============
+**How many lists does it take to get to the center of a stack overflow?**
+
+An enumeration, or ``enum`` is a type of type! That's right, you can make *more* types than the ones I just listed. But, not without hard work and effort.
+
+What does an ``enum`` look like? Well...
+::
+	enum foo = {
+		bar,
+		baz,
+		bat,
+		buzz,
+		fuzz,
+		faz,
+		fat,
+		cat,
+	}
+
+Something like this. What does this mean? It means that ``foo`` can have different variants. It means that ``foo(bar)`` is a valid value, as is ``foo(fuzz)`` and ``foo(cat)``. But, what do each of these equate to? Well, themselves. They're generic types. And I really want to hammer this into your head, because it's important: they aren't functions. They look like functions, but they aren't. They're enumerations.
+
+So, we know ``foo`` can be any of the list values, but can ``foo`` just be a generic type on its own? Well, you have two options:
+::
+	struct foo; // The struct-y way
+	// or
+	enum foo; // The enum-y way
+
+What's the difference? Well, using ``struct`` will allow you to implement methods onto ``foo``, whereas using ``enum`` will allow you to create variants of ``foo``. If you don't need either, that's fine. You can choose whichever based on arbitrary preference, but I suggest that if you're going to be using ``foo`` to type values, use ``struct``, whereas needing a generic type should entail using ``enum``. This is just part of Qyri's conventions.
