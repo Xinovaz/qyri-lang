@@ -248,16 +248,16 @@ Types
 Most language's documentation include the "types" section much earlier. However, I wanted to introduce the more important information before listing types. This will play into our next section, too.
 
 There are 10 different base types in Qyri, and they go as follows:
-* ``int``
-* ``bool``
-* ``null``
-* ``str``
-* ``float``
-* ``double``
-* ``byte``
-* ``word``
-* ``long``
-* ``type``
+*  ``int``
+*  ``bool``
+*  ``null``
+*  ``str``
+*  ``float``
+*  ``double``
+*  ``byte``
+*  ``word``
+*  ``long``
+*  ``type``
 
 Yes, there's a type type. Allow me to explain each and every one of them, in excruciating detail.
 
