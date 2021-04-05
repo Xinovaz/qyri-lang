@@ -119,13 +119,13 @@ Functions come in different flavours, like ice cream, only codier. For example, 
 ::
 	var add = (x, y) {
 		return x + y;
-	}
+	};
 
 as is this:
 ::
 	const add = (x, y) {
 		return x + y;
-	}
+	};
 
 
 "（ミ￣ー￣ミ）what? ``add`` isn't a variable, it's a funct-- ohhhh." You get it now. This syntax:
@@ -139,6 +139,8 @@ Conversely, using ``const`` will do that, but prevent you from using the functio
 	add 2, 3;
 
 Lastly, the ``var`` method of declaration allows the function's name to be mutable, meaning you can later use that name for a variable, constant, or other function. This is rarely useful, but it's implemented and there's nothing you can do about it.
+
+Also notice that there's a ``;`` at the end of both the ``var`` and ``const`` methods of defining a function. You're still declaring a variable/constant when you do those, remember that.
 
 .. _structs:
 
@@ -248,22 +250,22 @@ Types
 Most language's documentation include the "types" section much earlier. However, I wanted to introduce the more important information before listing types. This will play into our next section, too.
 
 There are 10 different base types in Qyri, and they go as follows:
-*  ``int``
-*  ``bool``
-*  ``null``
-*  ``str``
-*  ``float``
-*  ``double``
-*  ``byte``
-*  ``word``
-*  ``long``
-*  ``type``
+1. ``int``
+2. ``bool``
+3. ``null``
+4. ``str``
+5. ``float``
+6. ``double``
+7. ``byte``
+8. ``word``
+9. ``long``
+10. ``type``
 
 Yes, there's a type type. Allow me to explain each and every one of them, in excruciating detail.
 
 * An ``int`` is a signed 32-bit integer.
 * A ``bool`` is either true or false.
-* ``null`` Is a value that signifies nothing.
+* ``null`` is a value that signifies nothing.
 * A ``str`` is a string, which is an ASCII-ized array of ``byte``s.
 * A ``float`` is a signed 16-bit floating point number.
 * A ``double`` is a signed 32-bit floating point number.
