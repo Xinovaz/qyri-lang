@@ -44,8 +44,8 @@ fn main = () {
 Qyri's first version, _qyri-ocular-00_, is under development. Qyri Ocular is meant to provide a simple Qyri ecosystem to demo the language's features before its first real release. Designing a language is hard, and although this is something I'm passionate about, I have school and work to focus on. So, a little bit of money can help motivate me to prioritize Qyri Ocular's development to release it.
 
 ## BTC
-[17h3aXfrvr2MNLARTVyeQpCGBzgw53VAiJ](https://btc.com/17h3aXfrvr2MNLARTVyeQpCGBzgw53VAiJ)
+17h3aXfrvr2MNLARTVyeQpCGBzgw53VAiJ
 
 ## ETH
-0x4d0883f2a3DE14f3988A395B463DA1473a8f8f8f (No hyperlink, sorry)
+0x4d0883f2a3DE14f3988A395B463DA1473a8f8f8f
 
