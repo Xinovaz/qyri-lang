@@ -1,5 +1,3 @@
-use std::io::prelude::*;
-use std::io::{self, Read};
 use std::convert::TryFrom;
 use std::str;
 use stack_vm::{Instruction,
@@ -105,12 +103,71 @@ fn prt(machine: &mut Machine<Operand>, args: &[usize]) {
 // Control flow
 
 fn call(machine: &mut Machine<Operand>, args: &[usize]) {
-	let lbl = op_to_word(args[0] as u32) as char;
-	machine.call(lbl.to_string().as_str()); // TODO
+	let scope_name = machine.get_data(args[0]).clone();
+	let lbl = op_to_word(scope_name) as char;
+	machine.call(lbl.to_string().as_str());
 }
 
 fn ret(machine: &mut Machine<Operand>, _args: &[usize]) {
 	machine.ret();
+}
+
+// Bitwise ops
+
+fn and(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push(lhs & rhs);
+}
+
+fn or(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push(lhs | rhs);
+}
+
+fn xor(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push(lhs ^ rhs);
+}
+
+fn l_shift(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push(lhs << rhs);
+}
+
+fn r_shift(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push(lhs >> rhs);
+}
+
+fn z_shift(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push(lhs >>> rhs);
+}
+
+fn not(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let top = machine.operand_pop().clone();
+	machine.operand_push(!top);
+}
+
+// Advanced Control Flow
+
+fn pushpc(machine: &mut Machine<Operand>, _args: &[usize]) {
+	machine.operand_push(machine.ip as Operand);
+}
+
+fn poppc(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let arg = machine.operand_pop().clone();
+	machine.ip = arg as usize;
+}
+
+fn nop(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let _ = ();
 }
 
 // }
@@ -130,11 +187,21 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 	instruction_table.insert(Instruction::new(9, "print", 1, prt));
 	instruction_table.insert(Instruction::new(10, "call", 1, call));
 	instruction_table.insert(Instruction::new(11, "return", 0, ret));
+	instruction_table.insert(Instruction::new(12, "and", 0, and));
+	instruction_table.insert(Instruction::new(13, "or", 0, or));
+	instruction_table.insert(Instruction::new(14, "xor", 0, xor));
+	instruction_table.insert(Instruction::new(15, "lsh", 0, l_shift));
+	instruction_table.insert(Instruction::new(16, "rsh", 0, r_shift));
+	instruction_table.insert(Instruction::new(17, "zsh", 0, z_shift));
+	instruction_table.insert(Instruction::new(18, "not", 0, not));
+	instruction_table.insert(Instruction::new(19, "pushpc", 0, pushpc));
+	instruction_table.insert(Instruction::new(20, "poppc", 0, poppc));
+	instruction_table.insert(Instruction::new(21, "nop", 0, nop));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 
 	for (instruction, args) in inst {
-		if (instruction == "label") {
+		if instruction == "label" {
 			let lbl = op_to_word(args[0]) as char;
 			builder.label(lbl.to_string().as_str());
 		} else {
