@@ -85,13 +85,12 @@ fn long_read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes str as
 
 fn write(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let out = machine.operand_pop().clone();
-	print!("{}", out.to_string());
-	io::stdout().flush().expect("failed to flush stdout");
+	println!("{}", out.to_string());
 }
 
 fn prt(machine: &mut Machine<Operand>, args: &[usize]) {
 	let mut out: Vec<u8> = vec![];
-	for i in 0..*machine.get_data(args[0]) {
+	for _ in 0..*machine.get_data(args[0]) {
 		let ch: u8 = op_to_word(machine.operand_pop().clone());
 		out.push(ch);
 	}
@@ -100,16 +99,14 @@ fn prt(machine: &mut Machine<Operand>, args: &[usize]) {
 		Ok(v) => v,
 		Err(e) => panic!("invalid UTF-8 series: {}", e),
 	};
-	print!("{}", f);
-	io::stdout().flush().expect("failed to flush stdout")
+	println!("{}", f);
 }
 
 // Control flow
 
 fn call(machine: &mut Machine<Operand>, args: &[usize]) {
-	let label = machine.get_data(args[0]).clone();
-	let func = op_to_word(label) as char;
-	machine.call(func.to_string().as_str());
+	let lbl = op_to_word(args[0] as u32) as char;
+	machine.call(lbl.to_string().as_str()); // TODO
 }
 
 fn ret(machine: &mut Machine<Operand>, _args: &[usize]) {
@@ -132,7 +129,7 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 	instruction_table.insert(Instruction::new(8, "lrd", 0, long_read));
 	instruction_table.insert(Instruction::new(9, "print", 1, prt));
 	instruction_table.insert(Instruction::new(10, "call", 1, call));
-	instruction_table.insert(Instruction::new(11, "return", 1, ret));
+	instruction_table.insert(Instruction::new(11, "return", 0, ret));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 
