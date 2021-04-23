@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Wax is in development. Most of this is testing
+// Wax is in development. A lot of this is testing
 
 require('isomorphic-fetch');
 var program = require('commander');
@@ -13,6 +13,37 @@ var Dropbox = require('dropbox').Dropbox;
 var ACCESS_TOKEN = 'sl.AmcnwgY6x6cEX38_MnFyxJ7zmURHdH-7UyuepViq896Zf1AsBksFjBSFCCCduvwXcezexA1SfnAQqsvr1wIIgvBDjsVCxo-g-hrcnUCNB_jNUoCVnnUvNHY-FM09SD0fjeO_0KY';
 var dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
 
+const maxBlob = 8 * 1000 * 1000;
+const UPLOAD_FILE_SIZE_LIMIT = 150 * 1024 * 1024;
+
+/* Tools */
+
+function verify_q_project() {
+	try {
+		// get the anchor
+		const anchor = yaml.safeLoadAll(fs.readFileSync(process.cwd() + "/anchor.yml", cmd.encoding));
+		// verify the anchor
+		if (anchor[0][1] == '00') {
+			if (anchor[1]['ignore']) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+	} catch (e) {
+		if (e.code == 'ENOENT') {
+			return 2;
+			process.exit();
+		} else {
+			console.log(e);
+		}
+	}
+}
+
+
+
+
+/* Command line */
 
 program // Basic Info
 	.version('0.0.1')
@@ -93,28 +124,29 @@ program // wax verify
 	.option('-n, --encoding', 'search for a YAML anchor with an encoding', 'utf8')
 	.description('verify a directory as a Qyri project')
 	.action((cmd) => {
-		try {
-			// get the anchor
-			const anchor = yaml.safeLoadAll(fs.readFileSync(process.cwd() + "/anchor.yml", cmd.encoding));
-			// verify the anchor
-			if (anchor[0][1] == '00') {
-				if (anchor[1]['ignore']) {
-					console.log('This project is valid, but the ignore flag is set.');
-				} else {
-					console.log('This project is valid.')
-				}
-			}
-		} catch (e) {
-			if (e.code == 'ENOENT') {
-				console.log("Wax could not find anchor.yml in this directory. Try changing anchor.yaml to anchor.yml.");
-				process.exit();
-			} else {
-				console.log(e);
-			}
+		var result = verify_q_project();
+		if (result == 0) {
+			console.log('This project is valid, but the ignore flag is set.');
+		} else if (result == 1) {
+			console.log('This project is valid.');
+		} else {
+			console.log("Wax could not find anchor.yml in this directory. Try changing anchor.yaml to anchor.yml.");
+			process.exit();
 		}
 	});
 
-
+program // wax upload
+	.command('upload <name>')
+	.description('upload your Qyri project to the QPM')
+	.action((cmd) => {
+		console.log('Verifying project...');
+		var is_proj = verify_q_project();
+		if (is_proj == 0 || is_proj == 2) {
+			console.log('No Qyri project found.');
+		} else {
+			//TODO
+		}
+	});
 
 // Use from command line
 program.parse(process.argv);
