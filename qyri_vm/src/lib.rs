@@ -112,6 +112,30 @@ fn ret(machine: &mut Machine<Operand>, _args: &[usize]) {
 	machine.ret();
 }
 
+fn jump(machine: &mut Machine<Operand>, args: &[usize]) {
+	let scope_name = machine.get_data(args[0]).clone();
+	let lbl = op_to_word(scope_name) as char;
+	machine.jump(lbl.to_string().as_str());
+}
+
+fn jumpz(machine: &mut Machine<Operand>, args: &[usize]) {
+	let scope_name = machine.get_data(args[0]).clone();
+	let lbl = op_to_word(scope_name) as char;
+	let top = machine.operand_pop().clone();
+	if top == 0 {
+		machine.jump(lbl.to_string().as_str());
+	}
+}
+
+fn jumpnz(machine: &mut Machine<Operand>, args: &[usize]) {
+	let scope_name = machine.get_data(args[0]).clone();
+	let lbl = op_to_word(scope_name) as char;
+	let top = machine.operand_pop().clone();
+	if top != 0 {
+		machine.jump(lbl.to_string().as_str());
+	}
+}
+
 // Bitwise ops
 
 fn and(machine: &mut Machine<Operand>, _args: &[usize]) {
@@ -170,6 +194,28 @@ fn nop(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let _ = ();
 }
 
+// Stack manipulation
+
+fn dup(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let top = machine.operand_pop().clone();
+	machine.operand_push(top);
+	machine.operand_push(top);
+}
+
+fn over(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let top = machine.operand_pop().clone();
+	let next = machine.operand_pop().clone();
+	machine.operand_push(next);
+	machine.operand_push(top);
+	machine.operand_push(next);
+}
+
+fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let top = machine.operand_pop().clone();
+	let _ = machine.operand_pop().clone();
+	machine.operand_push(top);
+}
+
 // }
 
 pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
@@ -197,6 +243,12 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 	instruction_table.insert(Instruction::new(19, "pushpc", 0, pushpc));
 	instruction_table.insert(Instruction::new(20, "poppc", 0, poppc));
 	instruction_table.insert(Instruction::new(21, "nop", 0, nop));
+	instruction_table.insert(Instruction::new(22, "dup", 0, dup));
+	instruction_table.insert(Instruction::new(23, "over", 0, over));
+	instruction_table.insert(Instruction::new(24, "dnext", 0, dnext));
+	instruction_table.insert(Instruction::new(25, "jmp", 1, jump));
+	instruction_table.insert(Instruction::new(26, "jz", 1, jumpz));
+	instruction_table.insert(Instruction::new(26, "jnz", 1, jumpnz));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 
