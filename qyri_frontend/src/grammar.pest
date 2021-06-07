@@ -1,0 +1,61 @@
+scope = { "\n"* ~ ( statement ~ ";" ~ "\n"* )* ~ statement? }
+program = _{ SOI ~ scope ~ EOI }
+statement = _{ expr }
+
+fixedscope = { "{" ~ scope ~ "}" }
+
+atomicidentifier = { ( ASCII_ALPHA | "_" )+ ~ ASCII_ALPHANUMERIC* }
+identifier = { atomicidentifier ~ ( "." ~ identifier )? }
+disinfixfnidentifier = ${ "~" ~ atomicidentifier }
+number = ${ "-"? ~ ASCII_NUMBER+ }
+bool = { "true" | "false" }
+null = _{ "null" }
+str = { ( '"' ~ ANY* ~ '"' ) | ( "'" ~ ANY* ~ "'" ) }
+float = ${ "-"? ~ ASCII_NUMBER* ~ "." ~ number }
+type = { "int" | "bool" | "null" | "str" | "float" | "double" | "byte" | "word" | "long" | "type" | atomicidentifier | enumidentifier }
+
+enumidentifier = { atomicidentifier ~ "<" ~ atomicidentifier ~ ">" }
+
+declaration = { identifier ~ "=" ~ expr } // lr expr
+atomicdeclaration = { atomicidentifier ~ "=" ~ expr } // lr expr
+disinfixfndeclaration = { ( identifier | disinfixfnidentifier ) ~ "=" ~ expr }
+vardeclaration = { "var" ~ atomicdeclaration }
+constdeclaration = { "const" ~ atomicdeclaration }
+functiondeclaration = { "fn" ~ disinfixfndeclaration }
+
+
+arithmeticoperator = { "*" | "/" | "+" | "-" }
+arithmetic = { expr ~  arithmeticoperator ~ expr } // lr expr
+
+
+csv = { ( expr ~ "," ~ WHITE_SPACE* )* ~ expr? }
+list = { "[" ~ csv ~ "]" }
+tuple = { "(" ~ csv ~ ")" }
+
+
+functioncall = { identifier ~ tuple ~ fixedscope }
+keywordcall = { identifier ~ csv }
+
+infix = ${ "`" ~ identifier ~ "`" }
+infixcall = { expr ~ infix ~ expr } // lr expr
+
+
+pipeforward = { expr ~ "|>" ~ expr } // lr expr
+
+
+functiondefinition = { tuple ~ fixedscope }
+
+
+csvscope = { "{" ~ ( atomicidentifier ~ "," ~ WHITE_SPACE* )* ~ atomicidentifier? ~ "}" }
+
+
+structdeclaration = { "struct" ~ ( atomicidentifier | ( atomicidentifier ~ "=" ~ csvscope ) ) }
+structimplementation = { atomicidentifier ~ "->" ~ fixedscope } // lr expr
+structmemberdeclaration = { atomicidentifier ~ "->" ~ expr } // lr expr
+structmembercsvscope = { ( structmemberdeclaration ~ "," ~ WHITE_SPACE* )* ~ structmemberdeclaration? }
+structdefinition = { atomicidentifier ~ structmembercsvscope }
+
+enumdeclaration = { "enum" ~ ( atomicidentifier | ( atomicidentifier ~ "=" ~ csvscope ) ) }
+
+
+expr = {} // TODO last
