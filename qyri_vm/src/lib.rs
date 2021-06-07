@@ -1,5 +1,8 @@
 use std::convert::TryFrom;
 use std::str;
+#[allow(unused_imports)]
+use std::io::prelude::*;
+use std::io;
 use stack_vm::{Instruction,
 			InstructionTable, 
 			Machine,
@@ -84,6 +87,7 @@ fn long_read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes str as
 fn write(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let out = machine.operand_pop().clone();
 	println!("{}", out.to_string());
+	machine.operand_push(out);
 }
 
 fn prt(machine: &mut Machine<Operand>, args: &[usize]) {
@@ -168,12 +172,6 @@ fn r_shift(machine: &mut Machine<Operand>, _args: &[usize]) {
 	machine.operand_push(lhs >> rhs);
 }
 
-fn z_shift(machine: &mut Machine<Operand>, _args: &[usize]) {
-	let rhs = machine.operand_pop().clone();
-	let lhs = machine.operand_pop().clone();
-	machine.operand_push(lhs >>> rhs);
-}
-
 fn not(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let top = machine.operand_pop().clone();
 	machine.operand_push(!top);
@@ -190,7 +188,7 @@ fn poppc(machine: &mut Machine<Operand>, _args: &[usize]) {
 	machine.ip = arg as usize;
 }
 
-fn nop(machine: &mut Machine<Operand>, _args: &[usize]) {
+fn nop(_machine: &mut Machine<Operand>, _args: &[usize]) {
 	let _ = ();
 }
 
@@ -218,6 +216,8 @@ fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 // }
 
+
+
 pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 	let mut instruction_table = InstructionTable::new();
 
@@ -238,16 +238,15 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 	instruction_table.insert(Instruction::new(14, "xor", 0, xor));
 	instruction_table.insert(Instruction::new(15, "lsh", 0, l_shift));
 	instruction_table.insert(Instruction::new(16, "rsh", 0, r_shift));
-	instruction_table.insert(Instruction::new(17, "zsh", 0, z_shift));
-	instruction_table.insert(Instruction::new(18, "not", 0, not));
-	instruction_table.insert(Instruction::new(19, "pushpc", 0, pushpc));
-	instruction_table.insert(Instruction::new(20, "poppc", 0, poppc));
-	instruction_table.insert(Instruction::new(21, "nop", 0, nop));
-	instruction_table.insert(Instruction::new(22, "dup", 0, dup));
-	instruction_table.insert(Instruction::new(23, "over", 0, over));
-	instruction_table.insert(Instruction::new(24, "dnext", 0, dnext));
-	instruction_table.insert(Instruction::new(25, "jmp", 1, jump));
-	instruction_table.insert(Instruction::new(26, "jz", 1, jumpz));
+	instruction_table.insert(Instruction::new(17, "not", 0, not));
+	instruction_table.insert(Instruction::new(18, "pushpc", 0, pushpc));
+	instruction_table.insert(Instruction::new(19, "poppc", 0, poppc));
+	instruction_table.insert(Instruction::new(20, "nop", 0, nop));
+	instruction_table.insert(Instruction::new(21, "dup", 0, dup));
+	instruction_table.insert(Instruction::new(22, "over", 0, over));
+	instruction_table.insert(Instruction::new(23, "dnext", 0, dnext));
+	instruction_table.insert(Instruction::new(24, "jmp", 1, jump));
+	instruction_table.insert(Instruction::new(25, "jz", 1, jumpz));
 	instruction_table.insert(Instruction::new(26, "jnz", 1, jumpnz));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
