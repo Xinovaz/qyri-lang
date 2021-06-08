@@ -13,9 +13,13 @@ pub mod typing {
 	}
 }
 
+pub mod identifiers {
+	pub type identifier = &str;
+}
+
 pub mod functions {
 	pub struct Function {
-		name: &str,
+		name: identifier,
 		arity: u8,
 	}
 }
