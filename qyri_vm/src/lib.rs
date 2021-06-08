@@ -10,7 +10,7 @@ use stack_vm::{Instruction,
 			WriteManyTable,
 			Code,
 }; // Generic stack-based VM. Thanks, Jimsy!
-pub type Operand = u32; // Operands are u32
+pub type Operand = i32; // Operands are i32
 
 
 fn op_to_word(op: Operand) -> u8 {
@@ -62,18 +62,18 @@ fn div(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 // Standard I/O
 
-fn read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes 1 u32
+fn read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes 1 Operand
 	let mut buffer = String::new();
 	io::stdin()
 		.read_line(&mut buffer)
 		.expect("failed to read from stdin");
-	match buffer.trim().parse::<u32>() {
+	match buffer.trim().parse::<Operand>() {
 		Ok(num) => machine.operand_push(num as Operand),
 		Err(e) => panic!("failed to read operand: {}", e),
 	}
 }
 
-fn long_read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes str as u32s
+fn long_read(machine: &mut Machine<Operand>, _args: &[usize]) { // pushes str as Operands
 	let mut buffer = String::new();
 	io::stdin()
 		.read_line(&mut buffer)
