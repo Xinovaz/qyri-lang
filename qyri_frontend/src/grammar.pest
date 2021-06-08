@@ -1,31 +1,50 @@
-scope = { "\n"* ~ ( statement ~ ";" ~ "\n"* )* ~ statement? }
 program = _{ SOI ~ scope ~ EOI }
+repl = _{ SOI ~ ( ( statement ~ ";" ~ WHITESPACE* )* ~ statement? ) ~ EOI }
+
+scope = { "\n"* ~ ( statement ~ ";" ~ "\n"* )* ~ statement? }
 statement = _{ expr }
 
 fixedscope = { "{" ~ scope ~ "}" }
 
-atomicidentifier = { ( ASCII_ALPHA | "_" )+ ~ ASCII_ALPHANUMERIC* }
-identifier = { atomicidentifier ~ ( "." ~ identifier )? }
-disinfixfnidentifier = ${ "~" ~ atomicidentifier }
-number = ${ "-"? ~ ASCII_NUMBER+ }
-bool = { "true" | "false" }
+
+COMMENT = _{ ( "/*" ~ ANY* ~ "*/" ) | ( "//" ~ ANY* ~ "\n" ) }
+WHITESPACE = _{ (" " | "\t" | "\r" | "\n" )+ }
+
+
+atomicidentifier = @{ ( ASCII_ALPHA | "_" )+ ~ ASCII_ALPHANUMERIC* }
+identifier = @{ atomicidentifier ~ ( "." ~ identifier )? }
+disinfixfnidentifier = @{ "~" ~ atomicidentifier }
+number = @{ "-"? ~ ASCII_NUMBER+ }
+bool = _{ "true" | "false" }
 null = _{ "null" }
-str = { ( '"' ~ ANY* ~ '"' ) | ( "'" ~ ANY* ~ "'" ) }
-float = ${ "-"? ~ ASCII_NUMBER* ~ "." ~ number }
-type = { "int" | "bool" | "null" | "str" | "float" | "double" | "byte" | "word" | "long" | "type" | atomicidentifier | enumidentifier }
+str = @{ ( '"' ~ ANY* ~ '"' ) | ( "'" ~ ANY* ~ "'" ) }
+float = @{ "-"? ~ ASCII_NUMBER* ~ "." ~ number }
+type = _{ "int" | "bool" | "null" | "str" | "float" | "double" | "byte" | "word" | "long" | "type" | atomicidentifier | enumidentifier }
 
 enumidentifier = { atomicidentifier ~ "<" ~ atomicidentifier ~ ">" }
 
+
 declaration = { identifier ~ "=" ~ expr } // lr expr
 atomicdeclaration = { atomicidentifier ~ "=" ~ expr } // lr expr
-disinfixfndeclaration = { ( identifier | disinfixfnidentifier ) ~ "=" ~ expr }
+disinfixfndeclaration = { ( identifier | disinfixfnidentifier ) ~ "=" ~ functiondefinition }
 vardeclaration = { "var" ~ atomicdeclaration }
 constdeclaration = { "const" ~ atomicdeclaration }
 functiondeclaration = { "fn" ~ disinfixfndeclaration }
 
 
-arithmeticoperator = { "*" | "/" | "+" | "-" }
-arithmetic = { expr ~  arithmeticoperator ~ expr } // lr expr
+arithmeticoperator = _{ "*" | "/" | "+" | "-" }
+arithmetic = { expr ~ arithmeticoperator ~ expr } // lr expr
+
+
+unarynot = ${ "!" ~ identifier }
+
+bitwiseoperator = _{ "&" | "|" | "^" | "<<" | ">>" }
+bitwise = { expr ~ bitwiseoperator ~ expr } // lr expr
+
+
+conditional = { expr ~ "?" ~ expr ~ ":" ~ expr }
+logicoperator = _{ "==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||" }
+logic = { expr ~ logicoperator ~ expr } // lr expr
 
 
 csv = { ( expr ~ "," ~ WHITE_SPACE* )* ~ expr? }
@@ -33,7 +52,7 @@ list = { "[" ~ csv ~ "]" }
 tuple = { "(" ~ csv ~ ")" }
 
 
-functioncall = { identifier ~ tuple ~ fixedscope }
+functioncall = { identifier ~ tuple }
 keywordcall = { identifier ~ csv }
 
 infix = ${ "`" ~ identifier ~ "`" }
@@ -58,4 +77,36 @@ structdefinition = { atomicidentifier ~ structmembercsvscope }
 enumdeclaration = { "enum" ~ ( atomicidentifier | ( atomicidentifier ~ "=" ~ csvscope ) ) }
 
 
-expr = {} // TODO last
+expr = {
+	fixedscope |
+	atomicidentifier |
+	identifier |
+	number |
+	bool |
+	null |
+	str |
+	float |
+	type |
+	enumidentifier |
+	declaration |
+	atomicdeclaration |
+	vardeclaration |
+	constdeclaration |
+	functiondeclaration |
+	arithmetic |
+	unarynot |
+	bitwise |
+	conditional |
+	logic |
+	list |
+	tuple |
+	functioncall |
+	keywordcall |
+	infixcall |
+	pipeforward |
+	functiondefinition |
+	structdeclaration |
+	structimplementation |
+	structdefinition |
+	enumdeclaration
+}
