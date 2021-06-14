@@ -3,7 +3,7 @@
 //! Pour all your ingredients into `Machine` and make it dance.
 
 extern crate memory;
-use memory::Heap;
+use self::memory::Heap;
 
 use crate::code::Code;
 use crate::frame::Frame;
@@ -27,7 +27,7 @@ pub struct Machine<'a, T: 'a + fmt::Debug> {
     pub constants: &'a dyn Table<Item = T>,
     pub call_stack: Stack<Frame<T>>,
     pub operand_stack: Stack<T>,
-    pub memory: Heap,
+    pub heap: Heap,
 }
 
 impl<'a, T: 'a + fmt::Debug> Machine<'a, T> {
@@ -39,6 +39,7 @@ impl<'a, T: 'a + fmt::Debug> Machine<'a, T> {
         code: Code<T>,
         constants: &'a dyn Table<Item = T>,
         instruction_table: &'a InstructionTable<T>,
+        heap: Heap,
     ) -> Machine<'a, T> {
         let frame: Frame<T> = Frame::new(code.code.len());
         let mut call_stack = Stack::new();
@@ -51,6 +52,7 @@ impl<'a, T: 'a + fmt::Debug> Machine<'a, T> {
             constants,
             call_stack,
             operand_stack: Stack::new(),
+            heap,
         }
     }
 

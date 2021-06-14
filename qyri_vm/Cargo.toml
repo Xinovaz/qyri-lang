@@ -11,3 +11,9 @@ path = "../stack"
 
 [dependencies.memory]
 path = "../memory"
+
+[profile.dev]
+panic = "unwind"
+
+[profile.release]
+panic = "unwind"

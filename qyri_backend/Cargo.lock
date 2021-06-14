@@ -29,8 +29,9 @@ dependencies = [
 name = "qyri_backend"
 version = "0.1.0"
 dependencies = [
+ "memory",
  "qyri_vm",
- "stack-vm",
+ "stack",
 ]
 
 [[package]]
@@ -38,7 +39,7 @@ name = "qyri_vm"
 version = "0.1.0"
 dependencies = [
  "memory",
- "stack-vm",
+ "stack",
 ]
 
 [[package]]
@@ -52,10 +53,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "stack-vm"
+name = "stack"
 version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca57a0e94d7a71504e4121c64a633d5f58e2f42ef65a493dff0deb7bd6ade13d"
 dependencies = [
+ "memory",
  "rmp",
 ]

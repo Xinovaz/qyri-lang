@@ -12,7 +12,7 @@ pub struct Heap {
 impl Heap {
 	pub fn new() -> Heap {
 		Heap {
-			memory: vec![Abstract::Type(Type::Null); usize::MAX],
+			memory: vec![Abstract::Type(Type::Null); 0xFF as usize],
 			bindings: vec![],
 		}
 	}
@@ -26,15 +26,6 @@ impl Heap {
 			None => 0 as u32,
 			Some(address) => address as u32,
 		}
-	}
-
-	pub fn last_allocated(&self, c: Abstract) -> u32 {
-		let mcopy = &self.memory;
-		let last_matching_address = mcopy.into_iter()
-					.rposition(|x| match x {c => true, 
-											_ => false});
-		last_matching_address.unwrap() as u32
-		
 	}
 
 	pub fn load(&self, addr: i32) -> Abstract {

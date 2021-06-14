@@ -223,13 +223,13 @@ fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 fn load(machine: &mut Machine<Operand>, args: &[usize]) {
 	let addr = machine.get_data(args[0]).clone();
-	let rabs = machine.memory.load(addr);
-	builder.push("push", vec![rabs.qi_to_operand()]);
+	let rabs = machine.heap.load(addr);
+	machine.operand_push(rabs.qi_to_operand() as Operand);
 }
 
 fn store(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let top = machine.operand_pop().clone();
-	machine.memory.store(machine.memory.allocate(), Abstract::Type(Type::Int(top)));
+	machine.heap.store(machine.heap.allocate(), Abstract::Type(Type::Int(top)));
 }
 
 
@@ -282,12 +282,15 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Hea
 	}
 
 	let constants: WriteManyTable<Operand> = WriteManyTable::new();
-	let mut machine = Machine::new(Code::from(builder), &constants, &instruction_table);
+	let mut machine = Machine::new(Code::from(builder), &constants, &instruction_table, memory);
 
 	machine.run();
 
-
-	let top = machine.operand_pop().clone();
-	machine.operand_push(top);
-	top
+	if machine.operand_stack.is_empty() {
+		0 as Operand
+	} else {
+		let top = machine.operand_pop().clone();
+		machine.operand_push(top);
+		top
+	}
 }

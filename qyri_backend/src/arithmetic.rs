@@ -23,6 +23,5 @@ pub fn compute(insts: &mut Vec<(&str, Vec<Operand>)>, l: Type, o: Operator, r: T
 		Operator::Subtract => insts.push(("sub", vec![])),
 		Operator::Multiply => insts.push(("mul", vec![])),
 		Operator::Divide => insts.push(("div", vec![])),
-		_ => unreachable!()
 	}
 }
