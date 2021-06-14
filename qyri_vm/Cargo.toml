@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 stack-vm = "1.0.1"
+
+[dependencies.memory]
+path = "../memory"

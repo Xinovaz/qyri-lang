@@ -3,6 +3,11 @@ use std::str;
 #[allow(unused_imports)]
 use std::io::prelude::*;
 use std::io;
+
+extern crate memory;
+use memory::Heap;
+use memory::typing::{Type, Abstract};
+
 use stack_vm::{Instruction,
 			InstructionTable, 
 			Machine,
@@ -56,7 +61,7 @@ fn mul(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 fn div(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let rhs = machine.operand_pop().clone();
-	let lhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone(); // TODO: check for div by zero
 	machine.operand_push(lhs / rhs);
 }
 
@@ -218,7 +223,7 @@ fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 
 
-pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
+pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Heap) -> Operand {
 	let mut instruction_table = InstructionTable::new();
 
 	instruction_table.insert(Instruction::new(0, "push", 1, push));
@@ -255,6 +260,11 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 		if instruction == "label" {
 			let lbl = op_to_word(args[0]) as char;
 			builder.label(lbl.to_string().as_str());
+		} else if instruction == "ld" {
+			let rabs = memory.load(args[0]);
+			builder.push("push", vec![rabs.qi_to_operand()]);
+		} else if instruction == "st" {
+			memory.store(memory.allocate(), Abstract::Type(Type::Int(/*TODO: store*/)));
 		} else {
 			builder.push(instruction, args);
 		}
@@ -262,5 +272,11 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>) {
 
 	let constants: WriteManyTable<Operand> = WriteManyTable::new();
 	let mut machine = Machine::new(Code::from(builder), &constants, &instruction_table);
+
 	machine.run();
+
+
+	let top = machine.operand_pop().clone();
+	machine.operand_push(top);
+	top
 }

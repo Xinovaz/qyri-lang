@@ -11,3 +11,6 @@ stack-vm = "1.0.1"
 
 [dependencies.qyri_vm]
 path = "../qyri_vm"
+
+[dependencies.qyri_backend]
+path = "../qyri_backend"
