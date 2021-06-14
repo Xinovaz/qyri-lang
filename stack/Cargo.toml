@@ -1,0 +1,14 @@
+[package]
+name = "stack-vm"
+version = "1.0.1"
+authors = ["James Harton <james@harton.nz>"]
+license = "MIT"
+description = "A generic, reusable, stack-based virtual machine."
+repository = "https://gitlab.com/huia-lang/stack-vm"
+readme = "README.md"
+
+[badges]
+gitlab = { repository = "huia-lang/stack-vm" }
+
+[dependencies]
+rmp = "^0.8"

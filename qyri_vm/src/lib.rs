@@ -256,7 +256,7 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Hea
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 
-	for (instruction, args) in inst {
+	for (instruction, args, abs) in inst {
 		if instruction == "label" {
 			let lbl = op_to_word(args[0]) as char;
 			builder.label(lbl.to_string().as_str());
@@ -264,7 +264,7 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Hea
 			let rabs = memory.load(args[0]);
 			builder.push("push", vec![rabs.qi_to_operand()]);
 		} else if instruction == "st" {
-			memory.store(memory.allocate(), Abstract::Type(Type::Int(/*TODO: store*/)));
+			memory.store(memory.allocate(), Abstract::Type(Type::Int()));
 		} else {
 			builder.push(instruction, args);
 		}
