@@ -276,8 +276,6 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Hea
 		if instruction == "label" {
 			let lbl = op_to_word(args[0]) as char;
 			builder.label(lbl.to_string().as_str());
-		} else if instruction == "st" {
-			
 		} else {
 			builder.push(instruction, args);
 		}
