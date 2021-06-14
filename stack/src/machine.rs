@@ -2,6 +2,9 @@
 //!
 //! Pour all your ingredients into `Machine` and make it dance.
 
+extern crate memory;
+use memory::Heap;
+
 use crate::code::Code;
 use crate::frame::Frame;
 use crate::instruction_table::InstructionTable;
@@ -24,6 +27,7 @@ pub struct Machine<'a, T: 'a + fmt::Debug> {
     pub constants: &'a dyn Table<Item = T>,
     pub call_stack: Stack<Frame<T>>,
     pub operand_stack: Stack<T>,
+    pub memory: Heap,
 }
 
 impl<'a, T: 'a + fmt::Debug> Machine<'a, T> {

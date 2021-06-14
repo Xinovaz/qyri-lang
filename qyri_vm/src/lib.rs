@@ -8,13 +8,13 @@ extern crate memory;
 use memory::Heap;
 use memory::typing::{Type, Abstract};
 
-use stack_vm::{Instruction,
+use stack::{Instruction,
 			InstructionTable, 
 			Machine,
 			Builder,
 			WriteManyTable,
 			Code,
-}; // Generic stack-based VM. Thanks, Jimsy!
+}; // Generic (slightly modified) stack-based VM. Thanks to James Harton!
 pub type Operand = i32; // Operands are i32
 
 
@@ -219,6 +219,20 @@ fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
 	machine.operand_push(top);
 }
 
+// Memory
+
+fn load(machine: &mut Machine<Operand>, args: &[usize]) {
+	let addr = machine.get_data(args[0]).clone();
+	let rabs = machine.memory.load(addr);
+	builder.push("push", vec![rabs.qi_to_operand()]);
+}
+
+fn store(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let top = machine.operand_pop().clone();
+	machine.memory.store(machine.memory.allocate(), Abstract::Type(Type::Int(top)));
+}
+
+
 // }
 
 
@@ -253,18 +267,17 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Hea
 	instruction_table.insert(Instruction::new(24, "jmp", 1, jump));
 	instruction_table.insert(Instruction::new(25, "jz", 1, jumpz));
 	instruction_table.insert(Instruction::new(26, "jnz", 1, jumpnz));
+	instruction_table.insert(Instruction::new(27, "ld", 1, load));
+	instruction_table.insert(Instruction::new(28, "st", 0, store));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 
-	for (instruction, args, abs) in inst {
+	for (instruction, args) in inst {
 		if instruction == "label" {
 			let lbl = op_to_word(args[0]) as char;
 			builder.label(lbl.to_string().as_str());
-		} else if instruction == "ld" {
-			let rabs = memory.load(args[0]);
-			builder.push("push", vec![rabs.qi_to_operand()]);
 		} else if instruction == "st" {
-			memory.store(memory.allocate(), Abstract::Type(Type::Int()));
+			
 		} else {
 			builder.push(instruction, args);
 		}

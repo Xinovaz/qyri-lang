@@ -12,3 +12,6 @@ gitlab = { repository = "huia-lang/stack-vm" }
 
 [dependencies]
 rmp = "^0.8"
+
+[dependencies.memory]
+path = "../memory"
