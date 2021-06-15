@@ -6,16 +6,18 @@ pub mod functions;
 #[cfg(test)]
 mod tests {
 	extern crate qyri_vm;
-	use qyri_vm::{Operand, run_machine_from_ext};
+	use qyri_vm::run_machine_from_ext;
 
 	extern crate memory;
 	use memory::Heap;
-	use memory::typing::{Type, Abstract};
+	use memory::typing::{Type, Abstract, Operand, AtomType};
 	use memory::identifiers::Identifier;
+	use memory::functions::Function;
+	use memory::scopes::Scope;
 
 	use crate::arithmetic;
 	use crate::bitwise;
-	use crate::functions;
+	
 
 	#[test]
 	fn two_plus_two_equals_four() {
@@ -25,7 +27,7 @@ mod tests {
 		arithmetic::compute(&mut insts, 
 			Type::Int(2), 
 			arithmetic::Operator::Add, 
-			Type::Int(2)); // x = 2 + 2
+			Type::Int(2)); // 2 + 2
 
 		let top = run_machine_from_ext(insts, memory);
 		assert_eq!(top, 4);
@@ -63,6 +65,70 @@ mod tests {
 		in the memory, which will cause huge issues. */
 		let x = memory.bind(String::from("x"), memory.allocate());
 		insts.push(("ld", vec![x.address as Operand]));
+
+		let top = run_machine_from_ext(insts, memory);
+		assert_eq!(top, 5);
+	}
+
+	#[test]
+	fn init_simple_scope() {
+		let mut memory = Heap::new();
+		let mut insts: Vec<(&str, Vec<Operand>)> = Vec::new();
+
+		/* Quick Qyri-izing:
+		{			// creates a blank scope in the memory
+			2 + 2;	// loads 2 and 2 into the stack and adds them for 4
+		}
+		5;
+		*/
+
+		let scope = Abstract::Scope(
+			Scope::new(
+				AtomType::Null
+			)
+		);
+
+		memory.store(memory.allocate(), scope);
+		arithmetic::compute(&mut scope.code, 
+			Type::Int(2), 
+			arithmetic::Operator::Add, 
+			Type::Int(2)); // 2 + 2 in the scope
+
+		// TODO: convert scope from type String to &str or fix lifetime pm thing
+		let scope_top = run_machine_from_ext(scope.code, memory);
+		assert_eq!(scope_top, 4); // This is the result of the scope operation
+
+		insts.push(("push", vec![5 as Operand]));
+
+		let top = run_machine_from_ext(insts, memory);
+		assert_eq!(top, 5); // This is the singular 5 that's been pushed in
+	}
+
+	#[test]
+	fn create_add_function_and_add_two_and_three() {
+		let mut memory = Heap::new();
+		let mut insts: Vec<(&str, Vec<Operand>)> = Vec::new();
+		/* Quick Qyri-izing:
+		fn add = (x, y) $ int {
+			x + y;
+		}
+		add(2, 3);
+		*/
+
+		let add_f = Function {
+			arity: 2,
+			code: Scope::new(AtomType::Int)
+		};	// creates the function
+		add_f.code.push(("add", vec![])); // function definition
+		memory.store(memory.allocate(), add_f); // stores the function
+		let add = memory.bind(String::from("add"), memory.last_allocated()); // gives it the name
+		// load the numbers
+		insts.push(("push", vec![2 as Operand]));
+		insts.push(("push", vec![3 as Operand]));
+		// load the function definition
+		for instruction in memory.load(add.address).code {
+			insts.push(instruction);
+		}
 
 		let top = run_machine_from_ext(insts, memory);
 		assert_eq!(top, 5);

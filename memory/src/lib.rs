@@ -1,5 +1,7 @@
 pub mod identifiers;
 pub mod typing;
+pub mod functions;
+pub mod scopes;
 
 use crate::identifiers::Identifier;
 use crate::typing::{Type, Abstract};
@@ -26,6 +28,15 @@ impl Heap {
 			None => 0 as u32,
 			Some(address) => address as u32,
 		}
+	}
+
+	pub fn last_allocated(&self, c: Abstract) -> u32 {
+		if self.allocate() == 0 {
+			0xFE
+		} else {
+			self.allocate() - 1
+		}
+		
 	}
 
 	pub fn load(&self, addr: i32) -> Abstract {

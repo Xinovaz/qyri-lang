@@ -6,7 +6,7 @@ use std::io;
 
 extern crate memory;
 use memory::Heap;
-use memory::typing::{Type, Abstract};
+use memory::typing::{Type, Abstract, Operand};
 
 use stack::{Instruction,
 			InstructionTable, 
@@ -15,7 +15,6 @@ use stack::{Instruction,
 			WriteManyTable,
 			Code,
 }; // Generic (slightly modified) stack-based VM. Thanks to James Harton!
-pub type Operand = i32; // Operands are i32
 
 
 fn op_to_word(op: Operand) -> u8 {

@@ -1,8 +1,8 @@
 extern crate qyri_vm;
-use qyri_vm::{Operand, run_machine_from_ext};
+use qyri_vm::{run_machine_from_ext};
 
 extern crate memory;
-use memory::typing::Type;
+use memory::typing::{Operand, Type};
 
 pub enum Operator {
 	And,

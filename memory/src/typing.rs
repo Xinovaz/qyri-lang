@@ -1,6 +1,22 @@
 use crate::identifiers::Identifier;
+use crate::functions::Function;
+use crate::scopes::Scope;
 
-type Operand = i32; // Note: update with the VM because of cyclical deps
+pub type Operand = i32;
+
+#[derive(Debug, Clone)]
+pub enum AtomType {
+	Int,
+	Bool,
+	Null,
+	Str,
+	Float,
+	Double,
+	Byte,
+	Word,
+	Long,
+	Type,
+}
 
 #[derive(Debug, Clone)]
 pub enum Type {
@@ -21,7 +37,8 @@ pub enum Abstract {		/* In the future, all abstractions */ // I want to
 	Type(Type),			/* may derive from struct and enum */ // make it clear:
 	Struct(Vec<(Identifier, Type)>),						  // "may"
 	Enum(Vec<Identifier>),
-	Scope(Type),
+	Function(Function),
+	Scope(Scope),
 }
 
 impl Type {
@@ -54,8 +71,8 @@ impl Abstract {
 			Abstract::Type(T) => T.qi_to_operand(),
 			Abstract::Struct(_) => 0 as Operand,
 			Abstract::Enum(_) => 0 as Operand,
+			Abstract::Function(_) => 0 as Operand,
 			Abstract::Scope(_) => 0 as Operand,
-			_ => unreachable!(),
 		}
 	}
 }
