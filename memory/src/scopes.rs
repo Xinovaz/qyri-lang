@@ -11,8 +11,16 @@ impl Scope {
 	pub fn new(returns: AtomType) -> Scope {
 		Scope {
 			returns,
-			code: vec![],
-			collection: vec![],
+			code: Vec::new(),
+			collection: Vec::new(),
 		}
+	}
+
+	pub fn code(&self) -> Vec<(&str, Vec<Operand>)> {
+		let mut converted: Vec<(&str, Vec<Operand>)> = Vec::new();
+		for instruction in &self.code {
+			converted.push((instruction.0.as_str(), instruction.1.clone()));
+		}
+		converted
 	}
 }

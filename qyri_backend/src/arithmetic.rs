@@ -1,8 +1,7 @@
-extern crate qyri_vm;
-use qyri_vm::run_machine_from_ext;
-
 extern crate memory;
 use memory::typing::{Operand, Type};
+
+use crate::exceptions::DivideByZeroException;
 
 pub enum Operator {
 	Add,
@@ -22,6 +21,12 @@ pub fn compute(insts: &mut Vec<(&str, Vec<Operand>)>, l: Type, o: Operator, r: T
 		Operator::Add => insts.push(("add", vec![])),
 		Operator::Subtract => insts.push(("sub", vec![])),
 		Operator::Multiply => insts.push(("mul", vec![])),
-		Operator::Divide => insts.push(("div", vec![])),
+		Operator::Divide => {
+			if rhs == 0 {
+				DivideByZeroException.message_dialogue(insts, vec![lhs.to_string()]);
+			} else {
+				insts.push(("div", vec![]));
+			}
+		},
 	}
 }

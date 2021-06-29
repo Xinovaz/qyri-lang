@@ -15,7 +15,7 @@ impl Heap {
 	pub fn new() -> Heap {
 		Heap {
 			memory: vec![Abstract::Type(Type::Null); 0xFF as usize],
-			bindings: vec![],
+			bindings: Vec::new(),
 		}
 	}
 
@@ -39,7 +39,7 @@ impl Heap {
 		
 	}
 
-	pub fn load(&self, addr: i32) -> Abstract {
+	pub fn load(&self, addr: u32) -> Abstract {
 		self.memory[addr as usize].clone()
 	}
 

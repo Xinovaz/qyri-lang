@@ -17,7 +17,7 @@ use stack::{Instruction,
 }; // Generic (slightly modified) stack-based VM. Thanks to James Harton!
 
 
-fn op_to_word(op: Operand) -> u8 {
+pub fn op_to_word(op: Operand) -> u8 {
 	u8::try_from(op).ok().unwrap()
 }
 
@@ -60,7 +60,7 @@ fn mul(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 fn div(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let rhs = machine.operand_pop().clone();
-	let lhs = machine.operand_pop().clone(); // TODO: check for div by zero
+	let lhs = machine.operand_pop().clone();
 	machine.operand_push(lhs / rhs);
 }
 
@@ -222,7 +222,7 @@ fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 fn load(machine: &mut Machine<Operand>, args: &[usize]) {
 	let addr = machine.get_data(args[0]).clone();
-	let rabs = machine.heap.load(addr);
+	let rabs = machine.heap.load(u32::try_from(addr).unwrap()); // TODO: get byteorder crate to i32->u32
 	machine.operand_push(rabs.qi_to_operand() as Operand);
 }
 

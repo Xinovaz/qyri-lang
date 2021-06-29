@@ -1,6 +1,3 @@
-extern crate qyri_vm;
-use qyri_vm::{run_machine_from_ext};
-
 extern crate memory;
 use memory::typing::{Operand, Type};
 
