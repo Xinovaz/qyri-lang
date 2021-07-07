@@ -108,3 +108,66 @@ pub fn word_raw_to_qi(atom: &str) -> Type {
 pub fn long_raw_to_qi(atom: &str) -> Type {
 	Type::Long(atom.parse::<u32>().unwrap())
 }
+
+
+
+pub mod builtins {
+
+	pub mod Exceptions {
+		use crate::{Type, Abstract};
+		use crate::identifiers::Identifier;
+		type Operand = i32;
+
+		fn to_instructions_priv(insts: &mut Vec<(&str, Vec<Operand>)>, string: &Type) {
+			let to_convert = match string {
+				Type::Str(s) => s.as_str(),
+				_ => "",
+			};
+			let char_vec: Vec<char> = to_convert.chars().collect();
+			for ch in char_vec {
+				insts.push(("push", vec![ch as Operand]));
+			}
+		}
+
+		pub fn message_console(
+			exc: Abstract, 
+			insts: &mut Vec<(&str, Vec<Operand>)>, 
+			message: String) 
+		{
+			to_instructions_priv(insts, &Type::Str(message));
+		}
+
+		pub fn message_dialogue(
+			exc: Abstract, 
+			insts: &mut Vec<(&str, Vec<Operand>)>, 
+			inserts: Vec<String>,
+		) {
+			let Abstract::Struct(interior) = exc;
+
+			let message_enum = &interior[0].1;
+			let message: String = match message_enum {
+				Type::Str(s) => (*s).to_string(),
+				_ => "".to_string(),
+			};
+			for insert in inserts {
+				message.as_str().replace("{}", insert.as_str());
+			}
+			message_console(exc, insts, message);
+		}
+
+		pub const DivideByZeroException: Abstract = Abstract::Struct(
+			vec![
+					(
+						Identifier {
+							name: "message".to_string(),
+							address: 0xB4 as u32,
+						},
+
+						Type::Str("can't divide {} by zero".to_string()),
+					)
+			]
+		);
+
+	}
+
+}

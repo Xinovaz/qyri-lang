@@ -57,3 +57,22 @@ impl Heap {
 		return i;
 	}
 }
+
+/* IMPORTANT */
+
+/*
+Default memory allocations are stored here:
+
+	Exceptions:
+		AttributeException: 		0xBD
+		ExternalCodeException: 		0xBC
+		RecursionException: 		0xBB
+		MapException: 				0xBA
+		StackOverflowException: 	0xB9
+		IdentifierException: 		0xB8
+		SegmentationFaultException: 0xB7
+		SyntaxException: 			0xB6
+		TypeException: 				0xB5
+		DivideByZeroException: 		0xB4
+
+*/

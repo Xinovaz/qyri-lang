@@ -1,7 +1,6 @@
 extern crate memory;
 use memory::typing::{Operand, Type};
-
-use crate::exceptions::DivideByZeroException;
+use memory::typing::builtins::Exceptions::{message_dialogue, DivideByZeroException};
 
 pub enum Operator {
 	Add,
@@ -23,7 +22,7 @@ pub fn compute(insts: &mut Vec<(&str, Vec<Operand>)>, l: Type, o: Operator, r: T
 		Operator::Multiply => insts.push(("mul", vec![])),
 		Operator::Divide => {
 			if rhs == 0 {
-				DivideByZeroException.message_dialogue(insts, vec![lhs.to_string()]);
+				message_dialogue(DivideByZeroException, insts, vec![lhs.to_string()]);
 			} else {
 				insts.push(("div", vec![]));
 			}

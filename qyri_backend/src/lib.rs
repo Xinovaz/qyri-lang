@@ -17,9 +17,6 @@ mod tests {
 
 	use crate::arithmetic;
 	use crate::bitwise;
-	use crate::exceptions::{
-		DivideByZeroException,
-	};
 	
 
 	#[test]
