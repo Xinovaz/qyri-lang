@@ -2,7 +2,7 @@ use crate::identifiers::Identifier;
 use crate::functions::Function;
 use crate::scopes::Scope;
 
-pub type Operand = i32;
+pub type Operand = i64;
 
 #[derive(Debug, Clone)]
 pub enum AtomType {
@@ -24,21 +24,27 @@ pub enum Type {
 	Bool(bool),
 	Null,
 	Str(String),
-	Float(i16),
-	Double(i32),
+	Float(f32),
+	Double(f64),
 	Byte(u8),
 	Word(u16),
 	Long(u32),
 	Type,
+	Pending(Operand),
 }
 
 #[derive(Debug, Clone)]
 pub enum Abstract {		/* In the future, all abstractions */ // I want to
 	Type(Type),			/* may derive from struct and enum */ // make it clear:
-	Struct(Vec<(Identifier, Type)>),						  // "may"
-	Enum(Vec<Identifier>),
+	Struct(Vec<(Type)>),						  // "may"
+	StructDef(Vec<(Identifier, AtomType)>),
+	Enum(Identifier),
+	EnumDef(Vec<(String, usize)>),
 	Function(Function),
 	Scope(Scope),
+	ArrayBegin,
+	ArrayElement(u32),
+	Exception(String),
 }
 
 impl Type {
@@ -47,7 +53,7 @@ impl Type {
 			Type::Int(i) => *i as Operand,
 			Type::Bool(bl) => {
 				if *bl {
-					i32::MAX as Operand
+					i64::MAX as Operand
 				} else {
 					0 as Operand
 				}
@@ -59,7 +65,8 @@ impl Type {
 			Type::Byte(b) => *b as Operand,
 			Type::Word(w) => *w as Operand,
 			Type::Long(l) => *l as Operand,
-			Type::Type => i32::MAX as Operand,
+			Type::Type => i64::MAX as Operand,
+			Type::Pending(p) => *p,
 			_ => unreachable!(),
 		}
 	}
@@ -69,10 +76,15 @@ impl Abstract {
 	pub fn qi_to_operand(&self) -> Operand {
 		match self {
 			Abstract::Type(T) => T.qi_to_operand(),
-			Abstract::Struct(_) => 0 as Operand,
-			Abstract::Enum(_) => 0 as Operand,
-			Abstract::Function(_) => 0 as Operand,
-			Abstract::Scope(_) => 0 as Operand,
+			Abstract::Struct(_) => -3458764513820540928 as Operand,
+			Abstract::StructDef(_) => -6917529027641081856 as Operand,
+			Abstract::Enum(_) => -144115188075855872 as Operand,
+			Abstract::EnumDef(_) => -288230376151711744 as Operand,
+			Abstract::Function(_) => -576460752303423488 as Operand,
+			Abstract::Scope(_) => -1152921504606846976 as Operand,
+			Abstract::ArrayBegin => -2305843009213693952 as Operand,
+			Abstract::ArrayElement(x) => -(*x as Operand),
+			Abstract::Exception(_) => -4611686018427387904 as Operand,
 		}
 	}
 }
@@ -90,11 +102,11 @@ pub fn str_raw_to_qi(atom: &str) -> Type {
 }
 
 pub fn float_raw_to_qi(atom: &str) -> Type {
-	Type::Float(atom.parse::<i16>().unwrap())
+	Type::Float(atom.parse::<f32>().unwrap())
 }
 
 pub fn double_raw_to_qi(atom: &str) -> Type {
-	Type::Double(atom.parse::<i32>().unwrap())
+	Type::Double(atom.parse::<f64>().unwrap())
 }
 
 pub fn byte_raw_to_qi(atom: &str) -> Type {
@@ -107,67 +119,4 @@ pub fn word_raw_to_qi(atom: &str) -> Type {
 
 pub fn long_raw_to_qi(atom: &str) -> Type {
 	Type::Long(atom.parse::<u32>().unwrap())
-}
-
-
-
-pub mod builtins {
-
-	pub mod Exceptions {
-		use crate::{Type, Abstract};
-		use crate::identifiers::Identifier;
-		type Operand = i32;
-
-		fn to_instructions_priv(insts: &mut Vec<(&str, Vec<Operand>)>, string: &Type) {
-			let to_convert = match string {
-				Type::Str(s) => s.as_str(),
-				_ => "",
-			};
-			let char_vec: Vec<char> = to_convert.chars().collect();
-			for ch in char_vec {
-				insts.push(("push", vec![ch as Operand]));
-			}
-		}
-
-		pub fn message_console(
-			exc: Abstract, 
-			insts: &mut Vec<(&str, Vec<Operand>)>, 
-			message: String) 
-		{
-			to_instructions_priv(insts, &Type::Str(message));
-		}
-
-		pub fn message_dialogue(
-			exc: Abstract, 
-			insts: &mut Vec<(&str, Vec<Operand>)>, 
-			inserts: Vec<String>,
-		) {
-			let Abstract::Struct(interior) = exc;
-
-			let message_enum = &interior[0].1;
-			let message: String = match message_enum {
-				Type::Str(s) => (*s).to_string(),
-				_ => "".to_string(),
-			};
-			for insert in inserts {
-				message.as_str().replace("{}", insert.as_str());
-			}
-			message_console(exc, insts, message);
-		}
-
-		pub const DivideByZeroException: Abstract = Abstract::Struct(
-			vec![
-					(
-						Identifier {
-							name: "message".to_string(),
-							address: 0xB4 as u32,
-						},
-
-						Type::Str("can't divide {} by zero".to_string()),
-					)
-			]
-		);
-
-	}
-
 }

@@ -1,13 +1,13 @@
 // Built-in exceptions are just strings
 
 
-pub const AttributeException: String = "\"{}\" is not an attribute of {}".to_string();
-pub const ExternalCodeException: String = "unable to {} package \"{}\"".to_string();
-pub const RecursionException: String = "recursion limit reached".to_string();
-pub const MapException: String = "key \"{}\" not found in {}".to_string();
-pub const StackOverflowException: String = "caused the stack to overflow".to_string();
-pub const IdentifierException: String = "{} \"{}\" not found".to_string();
-pub const SegmentationFaultException: String = "segmentation fault".to_string();
-pub const SyntaxException: String = "invalid syntax".to_string();
-pub const TypeException: String = "{} is not of type {}".to_string();
-pub const DivideByZeroException: String = "cannot divide by zero".to_string();
+pub const AttributeException: &str = "\"{}\" is not an attribute of {}";
+pub const ExternalCodeException: &str = "unable to {} package \"{}\"";
+pub const RecursionException: &str = "recursion limit reached";
+pub const MapException: &str = "key \"{}\" not found in {}";
+pub const StackOverflowException: &str = "caused the stack to overflow";
+pub const IdentifierException: &str = "{} \"{}\" not found";
+pub const SegmentationFaultException: &str = "segmentation fault";
+pub const SyntaxException: &str = "invalid syntax";
+pub const TypeException: &str = "{} is not of type {}";
+pub const DivideByZeroException: &str = "cannot divide by zero";

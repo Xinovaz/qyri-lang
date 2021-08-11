@@ -222,15 +222,41 @@ fn dnext(machine: &mut Machine<Operand>, _args: &[usize]) {
 
 fn load(machine: &mut Machine<Operand>, args: &[usize]) {
 	let addr = machine.get_data(args[0]).clone();
-	let rabs = machine.heap.load(u32::try_from(addr).unwrap()); // TODO: get byteorder crate to i32->u32
+	let rabs = machine.heap.load(u32::try_from(addr).unwrap()); // TODO: get i32 -> u32
 	machine.operand_push(rabs.qi_to_operand() as Operand);
 }
 
 fn store(machine: &mut Machine<Operand>, _args: &[usize]) {
 	let top = machine.operand_pop().clone();
-	machine.heap.store(machine.heap.allocate(), Abstract::Type(Type::Int(top)));
+	let addr = machine.heap.allocate();
+	machine.heap.store(addr, Abstract::Type(Type::Pending(top))); // & <
 }
 
+// Floating point arithmetic
+
+fn addf(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push((lhs as f64 + rhs as f64) as Operand);
+}
+
+fn subf(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push((lhs as f64 - rhs as f64) as Operand);
+}
+
+fn mulf(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push((lhs as f64 * rhs as f64) as Operand);
+}
+
+fn divf(machine: &mut Machine<Operand>, _args: &[usize]) {
+	let rhs = machine.operand_pop().clone();
+	let lhs = machine.operand_pop().clone();
+	machine.operand_push((lhs as f64 / rhs as f64) as Operand);
+}
 
 // }
 
@@ -268,6 +294,10 @@ pub fn run_machine_from_ext<'a>(inst: Vec<(&str, Vec<Operand>)>, mut memory: Hea
 	instruction_table.insert(Instruction::new(26, "jnz", 1, jumpnz));
 	instruction_table.insert(Instruction::new(27, "ld", 1, load));
 	instruction_table.insert(Instruction::new(28, "st", 0, store));
+	instruction_table.insert(Instruction::new(29, "addf", 0, addf));
+	instruction_table.insert(Instruction::new(30, "subf", 0, subf));
+	instruction_table.insert(Instruction::new(31, "mulf", 0, mulf));
+	instruction_table.insert(Instruction::new(32, "divf", 0, divf));
 
 	let mut builder: Builder<Operand> = Builder::new(&instruction_table);
 

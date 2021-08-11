@@ -1,6 +1,5 @@
 pub mod arithmetic;
 pub mod bitwise;
-pub mod exceptions;
 pub mod strings;
 
 #[cfg(test)]
@@ -63,7 +62,8 @@ mod tests {
 		This is incredibly important. If a variable is not bound immediately after it
 		has been allocated, it's possible for something else to allocate that space
 		in the memory, which will cause huge issues. */
-		let x = memory.bind(String::from("x"), memory.allocate());
+		let x_alloc =  memory.allocate();
+		let x = memory.bind(String::from("x"), x_alloc);
 		insts.push(("ld", vec![x.address as Operand]));
 
 		let top = run_machine_from_ext(insts, memory);
@@ -77,14 +77,14 @@ mod tests {
 
 		arithmetic::compute(&mut insts, 
 			Type::Int(2), 
-			arithmetic::Operator::Add, 
-			Type::Int(2)); // 2 + 2
+			arithmetic::Operator::Divide, 
+			Type::Int(0)); // 2 + 2
 
 		let top = run_machine_from_ext(insts, memory);
 		assert_eq!(top, 4);
 	}
 
-	/* /* Temporary comment-out */#[test]
+	/* #[test]
 	fn init_simple_scope() {
 		let mut memory = Heap::new();
 		let mut insts: Vec<(&str, Vec<Operand>)> = Vec::new();

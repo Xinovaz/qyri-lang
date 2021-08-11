@@ -1,12 +1,16 @@
 extern crate memory;
+use memory::exceptions::DivideByZeroException;
 use memory::typing::{Operand, Type};
-use memory::typing::builtins::Exceptions::{message_dialogue, DivideByZeroException};
 
 pub enum Operator {
 	Add,
 	Subtract,
 	Multiply,
 	Divide,
+	AddF,
+	SubtractF,
+	MultiplyF,
+	DivideF,
 }
 
 pub fn compute(insts: &mut Vec<(&str, Vec<Operand>)>, l: Type, o: Operator, r: Type) {
@@ -22,10 +26,20 @@ pub fn compute(insts: &mut Vec<(&str, Vec<Operand>)>, l: Type, o: Operator, r: T
 		Operator::Multiply => insts.push(("mul", vec![])),
 		Operator::Divide => {
 			if rhs == 0 {
-				message_dialogue(DivideByZeroException, insts, vec![lhs.to_string()]);
+				println!("{}", DivideByZeroException);
 			} else {
 				insts.push(("div", vec![]));
 			}
 		},
+		Operator::AddF => insts.push(("addf", vec![])),
+		Operator::SubtractF => insts.push(("subf", vec![])),
+		Operator::MultiplyF => insts.push(("mulf", vec![])), // haha mulf
+		Operator::DivideF => {
+			if rhs == 0 {
+				println!("{}", DivideByZeroException);
+			} else {
+				insts.push(("divf", vec![]));
+			}
+		}
 	}
 }
