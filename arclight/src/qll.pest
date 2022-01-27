@@ -1,0 +1,35 @@
+WHITESPACE = _{ " " | "\t" }
+COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+
+
+identifier = @{ (ASCII_ALPHANUMERIC | "_" | ".")+ }
+label = ${ identifier ~ ":" }
+
+goto = { ^"goto" ~ identifier }
+call = { ^"call" ~ identifier } // same as goto but returns
+ret = { ^"return" }
+nop = { ^"nop" }
+
+primitive = { "int" | "bool" | "float" | "double" | "byte" | "word" | "long" }
+
+number = @{ ASCII_DIGIT+ }
+
+address = { ^"addr" ~ number }
+
+keyword = { ^"alloc" | ^"store" | ^"back" | ^"next" }
+call_keyword = { keyword ~ primitive ~ number? }
+
+
+stack_instruction = { ^"pushi" | ^"push" | ^"pop" | ^"store" | ^"load" | ^"jump" | ^"jmpz" | ^"jmpnz" | ^"pushpc" | ^"poppc" | ^"dup" | ^"drop" | ^"over" | ^"dropnext" | ^"add" | ^"sub" | ^"mul" | ^"neg" | ^"shl" | ^"shr" | ^"and" | ^"or" | ^"xor" | ^"not" | ^"equal" | ^"notequal" | ^"greq" | ^"leeq" | ^"grtr" | ^"less" | ^"in" | ^"out" }
+stack_logic_instruction = { ^"and" | ^"or" | ^"not" }
+call_stack = ${ "$" ~ stack_instruction }
+stack_predicate = @{ "$$" ~ stack_instruction }
+call_stack_arg = !{ stack_predicate ~ number }
+call_stack_log = @{ ^"log$" ~ stack_logic_instruction }
+
+
+
+expr = !{ call_keyword | call_stack | call_stack_arg | call_stack_log | label | goto | call | ret | address | nop }
+
+
+program = _{ SOI ~ ((expr | "") ~ (NEWLINE | ";"))* ~ expr? ~ EOI }
