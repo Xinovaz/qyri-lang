@@ -2,7 +2,9 @@
 
 # In This Branch:
 The latest version of Qyri, and the first fully-developed iteration, including the frontend *and* backend. As of the time this is being written, the Qyri Linking Language (QLL) is fully developed and ready for use in the arclight crate. Run the test (which performs some basic operations such as storing a struct and enum) using the following command (Rust is needed at the moment):
+
 ``$ cargo run -- test.qll``
+
 This will build the QLL interpreter.
 
 # Current state of the Qyri project:
