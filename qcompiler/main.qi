@@ -1,0 +1,21 @@
+using std.stdout.write;
+
+fn test = () $ int {
+	return 5.12;
+}
+
+fn do = (first: double, second: double, third: double) $ Array<double> {
+	var a = Array();
+
+	a.push(first);
+	a.push(second);
+	a.push(third);
+
+	return a;
+}
+
+fn main = () {
+	var result = do(test(), something, something_else);
+	write("Here is the result:\n");
+	write(result);
+}

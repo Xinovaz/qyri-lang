@@ -131,19 +131,19 @@ fn main() {
 }
 
 pub fn parse(source: &str) -> Result<Vec<Statement>, Error<Rule>> {
-    let mut ast = Vec::new();
+    let mut stmt = Vec::new();
 
     let pairs = QLLParser::parse(Rule::program, source)?;
     for pair in pairs {
         match pair.as_rule() {
             Rule::expr => {
-                ast.push(build_ast_from_expr(pair));
+                stmt.push(build_ast_from_expr(pair));
             },
             _ => {},
         }
     }
 
-    Ok(ast)
+    Ok(stmt)
 }
 
 fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> Statement {

@@ -1,0 +1,91 @@
+WHITESPACE = _{ " " | "\t" | NEWLINE }
+COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+
+
+integer = ${ (ASCII_DIGIT | "_")+ }
+float = ${ integer ~ "." ~ integer }
+
+string = { "\"" ~ (!NEWLINE ~ !"\"" ~ ANY)* ~ "\"" }
+
+
+identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_" | ".")* }
+typed_identifier = { identifier ~ ("<" ~ typed_identifier ~ ("," ~ typed_identifier)* ~ ">")? }
+canonical_identifier = { identifier ~ ":" ~ (typed_identifier | identifier) }
+
+term = { float | integer | call_function | new_structure | string | identifier }
+
+
+arithmetic_operation = { "*" | "/" | "+" | "-" | "%" }
+arithmetic_expression = { term ~ arithmetic_operation ~ expr }
+
+structure_frame_expression = { identifier ~ "->" ~ (term | code) }
+
+pipe_forward_expression = { identifier ~ "|>" ~ identifier }
+
+
+informal_parameters = { (canonical_identifier ~ ",")* ~ canonical_identifier }
+closure = !{ "(" ~ informal_parameters? ~ ")" ~ ("$" ~ typed_identifier)? ~ "{" ~ code_loud ~ "}" }
+
+
+formal_parameters = { expr ~ ("," ~ expr)* }
+keyword_parameters = { identifier ~ ("," ~ identifier)* }
+call_function = { identifier ~ "(" ~ formal_parameters? ~ ")" }
+call_return = { "return" ~ expr }
+call_keyword = { identifier ~ keyword_parameters? }
+
+
+assignment_variable = { "var" ~ (canonical_identifier | identifier) ~ "=" ~ expr }
+assignment_constant = { "const" ~ (canonical_identifier | identifier) ~ "=" ~ expr }
+
+no_infix_identifier = @{ "~" ~ identifier }
+declaration_function = !{ "fn" ~ (no_infix_identifier | identifier) ~ "=" ~ expr }
+
+
+structure_fields = { "{" ~ canonical_identifier ~ ("," ~ canonical_identifier)* ~ ","? ~ "}" }
+declaration_generic_structure = { "struct" ~ (identifier | canonical_identifier) }
+declaration_structure = { declaration_generic_structure ~ "=" ~ structure_fields }
+
+enumeration_variants = { "{" ~ identifier ~ ("," ~ identifier)* ~ ","? ~ "}" }
+declaration_generic_enumeration = { "enum" ~ identifier }
+declaration_enumeration = { declaration_generic_enumeration ~ "=" ~ enumeration_variants }
+
+
+new_structure_fields = { "{" ~ structure_frame_expression ~ ("," ~ structure_frame_expression)* ~ ","? ~ "}" }
+new_structure = { identifier ~ new_structure_fields }
+
+
+if_statement = { "if" ~ expr ~ code }
+else_statement = { "else" ~ code }
+while_loop = { "while" ~ expr ~ code }
+for_loop = { "for" ~ expr ~ "in" ~ expr ~ code }
+
+
+separate_scope = { 
+	if_statement					|
+	else_statement					|
+	while_loop						|
+	for_loop						|
+	declaration_function 			| 
+	declaration_structure 			| 
+	declaration_generic_structure 	| 
+	declaration_enumeration 		|
+	declaration_generic_enumeration 
+}
+
+expr = { 
+	assignment_variable 		|
+	assignment_constant 		| 
+	arithmetic_expression 		|
+	structure_frame_expression	|
+	pipe_forward_expression		|
+	closure 					|
+	term 
+}
+
+line = _{ expr ~ ";" }
+kw_line = _{ call_keyword ~ ";" }
+ret_line = _{ call_return ~ ";" }
+code = _{ (separate_scope | line | ret_line | kw_line | "{" ~ code ~ "}")* }
+code_loud = !{ code }
+
+program = _{ SOI ~ code ~ EOI }

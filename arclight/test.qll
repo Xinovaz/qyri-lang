@@ -69,7 +69,7 @@ main:									// main
 	$pop
 
 	addr 40
-	call .variant.Foo.bar
+	call .variant.Foo.Bar
 	$pop
 
 	return
