@@ -298,16 +298,17 @@ fn parse_closure(
     third: Option<pest::iterators::Pair<Rule>>
     ) -> AstNode 
 {
+    /*
+    Reader beware: you're in for a scare.
+    */
     match first {
         Some(f) => {
             match f.as_rule() {
                 Rule::informal_parameters => {
-                    // First is informal parameters
                     match second {
                         Some(s) => {
                             match s.as_rule() {
                                 Rule::typed_identifier => {
-                                    // First is informals, second is type, third is code
                                     match third {
                                         Some(t) => {
                                             match t.as_rule() {
@@ -325,7 +326,6 @@ fn parse_closure(
                                     }
                                 },
                                 Rule::code_loud => {
-                                    // First is informals, second is code, no type
                                     AstNode::FnClosure {
                                         parameters: build_vec_from_informals(f),
                                         t: None,
@@ -343,7 +343,6 @@ fn parse_closure(
                         Some(s) => {
                             match s.as_rule() {
                                 Rule::code_loud => {
-                                    // First is type, second is code, no parameters
                                     AstNode::FnClosure {
                                         parameters: Vec::new(),
                                         t: Some(Box::new(build_ast_from_term(f))),
