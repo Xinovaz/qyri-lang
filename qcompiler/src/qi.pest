@@ -12,11 +12,48 @@ identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_" | ".")* }
 typed_identifier = { identifier ~ ("<" ~ typed_identifier ~ ("," ~ typed_identifier)* ~ ">")? }
 canonical_identifier = { identifier ~ ":" ~ (typed_identifier | identifier) }
 
-term = { float | integer | call_function | new_structure | string | identifier }
+term = { float | integer | call_function | new_structure | string | identifier | "(" ~ expr ~ ")" }
 
 
-arithmetic_operation = { "*" | "/" | "+" | "-" | "%" }
-arithmetic_expression = { term ~ arithmetic_operation ~ expr }
+plus = { "+" }
+minus = { "-" }
+times = { "*" }
+divide = { "/" }
+modulus = { "%" }
+arithmetic_operation = _{ plus | minus | times | divide | modulus }
+arithmetic_expression = { term ~ (arithmetic_operation ~ term)+ }
+negative_expression = ${ "-" ~ term }
+
+bw_and = { "&" }
+bw_or = { "|" }
+bw_xor = { "^" }
+bitwise_operation = _{ bw_and | bw_or | bw_xor }
+bitwise_expression = { term ~ (bitwise_operation ~ term)+ }
+
+log_and = { "&&" }
+log_or = { "||" }
+log_xor = { "^^" }
+log_eq = { "==" }
+log_ne = { "!=" }
+log_gt = { ">" }
+log_lt = { "<" }
+log_ge = { ">=" }
+log_le = { "<=" }
+logic_operation = _{ 
+	log_and 	| 
+	log_or 		| 
+	log_xor 	| 
+	log_eq 		| 
+	log_ne 		|
+	log_gt		|
+	log_lt		|
+	log_ge		|
+	log_le
+}
+logic_expression = { term ~ (logic_operation ~ term)+ }
+
+not_expression = ${ "!" ~ term }
+
 
 structure_frame_expression = { identifier ~ "->" ~ (term | code) }
 
@@ -37,12 +74,26 @@ call_keyword = { identifier ~ keyword_parameters? }
 assignment_variable = { "var" ~ (canonical_identifier | identifier) ~ "=" ~ expr }
 assignment_constant = { "const" ~ (canonical_identifier | identifier) ~ "=" ~ expr }
 
+reassignment_variable = { identifier ~ "=" ~ expr }
+reassignment_variable_add = { identifier ~ "+=" ~ expr }
+reassignment_variable_sub = { identifier ~ "-=" ~ expr }
+reassignment_variable_mul = { identifier ~ "*=" ~ expr }
+reassignment_variable_div = { identifier ~ "/=" ~ expr }
+
+
 no_infix_identifier = @{ "~" ~ identifier }
-declaration_function = !{ "fn" ~ (no_infix_identifier | identifier) ~ "=" ~ expr }
+declaration_function = !{ "fn" ~ (no_infix_identifier | identifier) ~ "=" ~ closure }
+
+
+identifier_list = { identifier ~ ("," ~ identifier)* }
+declaration_type_variables = { "#{" ~ identifier_list? ~ "}" }
+
+
+attach_decorator = ${ "@" ~ identifier }
 
 
 structure_fields = { "{" ~ canonical_identifier ~ ("," ~ canonical_identifier)* ~ ","? ~ "}" }
-declaration_generic_structure = { "struct" ~ (identifier | canonical_identifier) }
+declaration_generic_structure = { "struct" ~ (canonical_identifier | identifier) }
 declaration_structure = { declaration_generic_structure ~ "=" ~ structure_fields }
 
 enumeration_variants = { "{" ~ identifier ~ ("," ~ identifier)* ~ ","? ~ "}" }
@@ -54,10 +105,10 @@ new_structure_fields = { "{" ~ structure_frame_expression ~ ("," ~ structure_fra
 new_structure = { identifier ~ new_structure_fields }
 
 
-if_statement = { "if" ~ expr ~ code }
-else_statement = { "else" ~ code }
-while_loop = { "while" ~ expr ~ code }
-for_loop = { "for" ~ expr ~ "in" ~ expr ~ code }
+if_statement = { "if" ~ expr ~ "{" ~ code_loud ~ "}" }
+else_statement = { "else" ~ "{" ~ code_loud ~ "}" }
+while_loop = { "while" ~ expr ~ "{" ~ code_loud ~ "}" }
+for_loop = { "for" ~ expr ~ "in" ~ expr ~ "{" ~ code_loud ~ "}" }
 
 
 separate_scope = { 
@@ -69,13 +120,22 @@ separate_scope = {
 	declaration_structure 			| 
 	declaration_generic_structure 	| 
 	declaration_enumeration 		|
-	declaration_generic_enumeration 
+	declaration_generic_enumeration |
+	declaration_type_variables		|
+	attach_decorator
 }
 
 expr = { 
 	assignment_variable 		|
 	assignment_constant 		| 
+	reassignment_variable		|
+	reassignment_variable_add	|
+	reassignment_variable_sub	|
+	reassignment_variable_mul	|
+	reassignment_variable_div	|
 	arithmetic_expression 		|
+	bitwise_expression			|
+	logic_expression			|
 	structure_frame_expression	|
 	pipe_forward_expression		|
 	closure 					|

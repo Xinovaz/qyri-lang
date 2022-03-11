@@ -1,4 +1,11 @@
 using std.stdout.write;
+using math.abs;
+
+@SerializeToLog
+#{ T }
+const LOG = (x: T) $ T {
+	return x;
+};
 
 fn test = () $ int {
 	return 5.12;
@@ -14,8 +21,37 @@ fn do = (first: double, second: double, third: double) $ Array<double> {
 	return a;
 }
 
+enum Coin = {
+	Penny,
+	Nickel,
+	Dime,
+	Quarter,
+	HalfDollar,
+}
+
 fn main = () {
 	var result = do(test(), something, something_else);
 	write("Here is the result:\n");
 	write(result);
+	var n: int = abs(3 - 4 * 3);
+
+	var ball: FnClosure = (x: int) $ int {
+		return x * 2;
+	};
+
+	var ball: int = ball((n + 7));
+
+	while (n > 32) {
+		n -= 1;
+	}
+
+	if (n == 32) {
+		shut up, dickhead;
+	} else {
+		do not;
+	}
+
+	for digit in n {
+		suck nuts;
+	}
 }
