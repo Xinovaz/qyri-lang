@@ -8,11 +8,16 @@ float = ${ integer ~ "." ~ integer }
 string = { "\"" ~ (!NEWLINE ~ !"\"" ~ ANY)* ~ "\"" }
 
 
+array = { "[" ~ formal_parameters? ~ ","? ~ "]" }
+array_access = { term_sub ~ "[" ~ formal_parameters ~ "]" }
+
+
 identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_" | ".")* }
 typed_identifier = { identifier ~ ("<" ~ typed_identifier ~ ("," ~ typed_identifier)* ~ ">")? }
 canonical_identifier = { identifier ~ ":" ~ (typed_identifier | identifier) }
 
-term = { float | integer | call_function | new_structure | string | identifier | "(" ~ expr ~ ")" }
+term_sub = _{ float | integer | call_function | new_structure | string | array | identifier | "(" ~ expr ~ ")" }
+term = { array_access | term_sub }
 
 
 plus = { "+" }
@@ -27,7 +32,9 @@ negative_expression = ${ "-" ~ term }
 bw_and = { "&" }
 bw_or = { "|" }
 bw_xor = { "^" }
-bitwise_operation = _{ bw_and | bw_or | bw_xor }
+bw_lshift = { "<<" }
+bw_rshift = { ">>" }
+bitwise_operation = _{ bw_and | bw_or | bw_xor | bw_lshift | bw_rshift }
 bitwise_expression = { term ~ (bitwise_operation ~ term)+ }
 
 log_and = { "&&" }
@@ -55,9 +62,11 @@ logic_expression = { term ~ (logic_operation ~ term)+ }
 not_expression = ${ "!" ~ term }
 
 
-structure_frame_expression = { identifier ~ "->" ~ (term | code) }
+structure_frame_expression = { identifier ~ "->" ~ ("{" ~ code_loud ~ "}" | expr) }
 
-pipe_forward_expression = { identifier ~ "|>" ~ identifier }
+
+pipe_forward_operator = { "|>" }
+pipe_forward_expression = { term ~ (pipe_forward_operator ~ term)* }
 
 
 informal_parameters = { (canonical_identifier ~ ",")* ~ canonical_identifier }
@@ -65,10 +74,9 @@ closure = !{ "(" ~ informal_parameters? ~ ")" ~ ("$" ~ typed_identifier)? ~ "{" 
 
 
 formal_parameters = { expr ~ ("," ~ expr)* }
-keyword_parameters = { identifier ~ ("," ~ identifier)* }
 call_function = { identifier ~ "(" ~ formal_parameters? ~ ")" }
 call_return = { "return" ~ expr }
-call_keyword = { identifier ~ keyword_parameters? }
+call_keyword = { identifier ~ formal_parameters? }
 
 
 assignment_variable = { "var" ~ (canonical_identifier | identifier) ~ "=" ~ expr }
@@ -116,30 +124,32 @@ separate_scope = {
 	else_statement					|
 	while_loop						|
 	for_loop						|
-	declaration_function 			| 
-	declaration_structure 			| 
-	declaration_generic_structure 	| 
+	declaration_function 			|
+	declaration_structure 			|
 	declaration_enumeration 		|
-	declaration_generic_enumeration |
 	declaration_type_variables		|
+	structure_frame_expression		|
 	attach_decorator
 }
 
 expr = { 
-	assignment_variable 		|
-	assignment_constant 		| 
-	reassignment_variable		|
-	reassignment_variable_add	|
-	reassignment_variable_sub	|
-	reassignment_variable_mul	|
-	reassignment_variable_div	|
-	arithmetic_expression 		|
-	bitwise_expression			|
-	logic_expression			|
-	structure_frame_expression	|
-	pipe_forward_expression		|
-	closure 					|
-	term 
+	assignment_variable 			|
+	assignment_constant 			|
+	reassignment_variable			|
+	reassignment_variable_add		|
+	reassignment_variable_sub		|
+	reassignment_variable_mul		|
+	reassignment_variable_div		|
+	declaration_generic_structure 	|
+	declaration_generic_enumeration |
+	arithmetic_expression 			|
+	bitwise_expression				|
+	logic_expression				|
+	pipe_forward_expression			|
+	closure 						|
+	not_expression					|
+	negative_expression				|
+	term 							
 }
 
 line = _{ expr ~ ";" }

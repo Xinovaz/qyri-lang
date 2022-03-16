@@ -1,24 +1,17 @@
 using std.stdout.write;
-using math.abs;
 
-@SerializeToLog
-#{ T }
-const LOG = (x: T) $ T {
-	return x;
-};
-
-fn test = () $ int {
-	return 5.12;
+struct Point = {
+	x: int,
+	y: int,
 }
 
-fn do = (first: double, second: double, third: double) $ Array<double> {
-	var a = Array();
-
-	a.push(first);
-	a.push(second);
-	a.push(third);
-
-	return a;
+Point -> {
+	fn new = (x: int, y: int) $ Point {
+		return Point {
+			x -> x,
+			y -> y,
+		};
+	}
 }
 
 enum Coin = {
@@ -26,32 +19,12 @@ enum Coin = {
 	Nickel,
 	Dime,
 	Quarter,
-	HalfDollar,
 }
 
-fn main = () {
-	var result = do(test(), something, something_else);
-	write("Here is the result:\n");
-	write(result);
-	var n: int = abs(3 - 4 * 3);
-
-	var ball: FnClosure = (x: int) $ int {
-		return x * 2;
-	};
-
-	var ball: int = ball((n + 7));
-
-	while (n > 32) {
-		n -= 1;
-	}
-
-	if (n == 32) {
-		shut up, dickhead;
-	} else {
-		do not;
-	}
-
-	for digit in n {
-		suck nuts;
-	}
+fn ~main = () {
+	write("Hello, world!");
+	var p: Point = Point(1, 2);
+	var c = Coin.Penny;
+	var a = [1, 2, 3];
+	var b = a[0][-1];
 }

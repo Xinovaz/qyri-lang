@@ -28,6 +28,15 @@ pub enum BitwiseOperator {
     And,
     Or,
     Xor,
+    LeftShift,
+    RightShift,
+}
+
+#[derive(Debug)]
+pub enum LogicOperator {
+    And,
+    Or,
+    Xor,
     Equal,
     NotEqual,
     GreaterThan,
@@ -61,6 +70,22 @@ pub enum AstNode {
     CanonicalIdentifier {
         name: Box<AstNode>,
         t: Box<AstNode>,
+    },
+    NoInfixIdentifier {
+        name: Box<AstNode>,
+    },
+    ArrayElement {
+        array: Box<AstNode>,
+        indices: Vec<Box<AstNode>>,
+    },
+
+    // Canonical abstractions
+    Array {
+        contents: Vec<Box<AstNode>>,
+    },
+    CanonicalStructure {
+        name: Box<AstNode>,
+        attributes: Vec<Box<AstNode>>,
     },
 
 
@@ -107,6 +132,15 @@ pub enum AstNode {
         op: BitwiseOperator,
         rhs: Box<AstNode>,
     },
+    LogicExpression {
+        lhs: Box<AstNode>,
+        op: LogicOperator,
+        rhs: Box<AstNode>,
+    },
+    PipeForwardExpression {
+        lhs: Box<AstNode>,
+        rhs: Box<AstNode>,
+    },
 
     // Separate scopes
     FnClosure {
@@ -131,6 +165,14 @@ pub enum AstNode {
     EnumerationDeclaration {
         head: Box<AstNode>,
         variants: Vec<Box<AstNode>>,
+    },
+    StructureImplementation {
+        name: Box<AstNode>,
+        code: Vec<Box<AstNode>>,
+    },
+    StructureFieldAssignment {
+        name: Box<AstNode>,
+        expr: Box<AstNode>,
     },
 
     // One-liner modifiers
@@ -312,6 +354,23 @@ fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> AstNode {
         Rule::logic_expression => {
             parse_logic_expression(pair.into_inner())
         },
+        Rule::pipe_forward_expression => {
+            parse_pipe_forward_expression(pair.into_inner())
+        },
+        Rule::declaration_generic_structure => {
+            let mut pair = pair.into_inner();
+            let name = pair.next().unwrap();
+            AstNode::GenericStructure {
+                name: Box::new(build_ast_from_term(name)),
+            }
+        },
+        Rule::declaration_generic_enumeration => {
+            let mut pair = pair.into_inner();
+            let name = pair.next().unwrap();
+            AstNode::GenericEnumeration {
+                name: Box::new(build_ast_from_term(name)),
+            }
+        },
         _ => build_ast_from_term(pair),
     }
 }
@@ -376,6 +435,15 @@ fn build_ast_from_term(pair: pest::iterators::Pair<Rule>) -> AstNode {
                 parameters,
             }
         },
+        Rule::new_structure => {
+            let mut pair = pair.into_inner();
+            let name = pair.next().unwrap();
+            let attributes = pair.next().unwrap();
+            AstNode::CanonicalStructure {
+                name: Box::new(build_ast_from_expr(name)),
+                attributes: build_vec_from_canonical_fields(attributes),
+            }
+        },
         Rule::string => {
             let mut s = pair.as_str().to_string();
             s.retain(|c| !r#"""#.contains(c));
@@ -383,12 +451,42 @@ fn build_ast_from_term(pair: pest::iterators::Pair<Rule>) -> AstNode {
                 contents: s,
             }
         },
+        Rule::array => {
+            let mut pair = pair.into_inner();
+            let contents = pair.next();
+            AstNode::Array {
+                contents: {
+                    match contents {
+                        Some(p) => build_vec_from_formals(p),
+                        None => Vec::new(),
+                    }
+                },
+            }
+        }
         Rule::identifier => {
             AstNode::Identifier {
                 name: pair.as_str().to_string(),
             }
         },
-        _ => AstNode::Other(pair.as_rule(), pair.as_str().to_string()),
+        Rule::no_infix_identifier => {
+            let mut pair = pair.into_inner();
+            AstNode::NoInfixIdentifier {
+                name: Box::new(build_ast_from_expr(pair.next().unwrap())),
+            }
+        },
+        Rule::array_access => {
+            let mut pair = pair.into_inner();
+            let array = pair.next().unwrap();
+            let expr = pair.next();
+            AstNode::ArrayElement {
+                array: Box::new(build_ast_from_expr(array)),
+                indices: match expr {
+                    Some(p) => build_vec_from_formals(p),
+                    None => Vec::new(),
+                },
+            }
+        }
+        _ => build_ast_from_separate(pair),
     }
 }
 
@@ -403,34 +501,20 @@ fn build_ast_from_separate(pair: pest::iterators::Pair<Rule>) -> AstNode {
             let expr = build_ast_from_expr(expr);
             parse_declaration_function(name, expr)
         },
-        Rule::declaration_generic_structure => {
-            let mut pair = pair.into_inner();
-            let name = pair.next().unwrap();
-            AstNode::GenericStructure {
-                name: Box::new(build_ast_from_term(name)),
-            }
-        },
         Rule::declaration_structure => {
             let mut pair = pair.into_inner();
             let first = pair.next().unwrap();
-            let first = build_ast_from_separate(first);
+            let first = build_ast_from_expr(first);
             let second = pair.next().unwrap();
             AstNode::StructureDeclaration {
                 head: Box::new(first),
                 fields: build_vec_from_structure_fields(second),
             }
         },
-        Rule::declaration_generic_enumeration => {
-            let mut pair = pair.into_inner();
-            let name = pair.next().unwrap();
-            AstNode::GenericEnumeration {
-                name: Box::new(build_ast_from_term(name)),
-            }
-        },
         Rule::declaration_enumeration => {
             let mut pair = pair.into_inner();
             let first = pair.next().unwrap();
-            let first = build_ast_from_separate(first);
+            let first = build_ast_from_expr(first);
             let second = pair.next().unwrap();
             AstNode::EnumerationDeclaration {
                 head: Box::new(first),
@@ -491,6 +575,26 @@ fn build_ast_from_separate(pair: pest::iterators::Pair<Rule>) -> AstNode {
                 iteration: Box::new(iteration),
                 iterator: Box::new(iterator),
                 code,
+            }
+        },
+        Rule::structure_frame_expression => {
+            let mut pair = pair.into_inner();
+            let name = pair.next().unwrap();
+            let expr = pair.next().unwrap();
+            match expr.as_rule() {
+                Rule::code_loud => {
+                    AstNode::StructureImplementation {
+                        name: Box::new(build_ast_from_expr(name)),
+                        code: box_parse(expr.as_str()).unwrap(),
+                    }
+                },
+                Rule::expr => {
+                    AstNode::StructureFieldAssignment {
+                        name: Box::new(build_ast_from_expr(name)),
+                        expr: Box::new(build_ast_from_expr(expr)),
+                    }
+                },
+                _ => unreachable!(),
             }
         },
         _ => AstNode::Other(pair.as_rule(), pair.as_str().to_string()),
@@ -562,6 +666,16 @@ fn build_vec_from_identifiers(identifiers: pest::iterators::Pair<Rule>) -> Vec<B
     for p in QyriParser::parse(Rule::identifier_list, &identifiers.as_str()).unwrap() {
         for pair in p.into_inner() {
             buffer.push(Box::new(build_ast_from_expr(pair)));
+        }
+    }
+    buffer
+}
+
+fn build_vec_from_canonical_fields(fields: pest::iterators::Pair<Rule>) -> Vec<Box<AstNode>> {
+    let mut buffer: Vec<Box<AstNode>> = Vec::new();
+    for p in QyriParser::parse(Rule::new_structure_fields, &fields.as_str()).unwrap() {
+        for pair in p.into_inner() {
+            buffer.push(Box::new(build_ast_from_separate(pair)));
         }
     }
     buffer
@@ -793,6 +907,8 @@ fn parse_arithmetic_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
 
 fn parse_bitwise_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
     let climber = PrecClimber::new(vec![
+        Operator::new(Rule::bw_lshift, Assoc::Left) |
+        Operator::new(Rule::bw_rshift, Assoc::Left) ,
         Operator::new(Rule::bw_and, Assoc::Left)    | 
         Operator::new(Rule::bw_or, Assoc::Left)     | 
         Operator::new(Rule::bw_xor, Assoc::Left)    ,
@@ -820,6 +936,16 @@ fn parse_bitwise_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
             Rule::bw_xor => AstNode::BitwiseExpression {
                 lhs: Box::new(lhs),
                 op: BitwiseOperator::Xor,
+                rhs: Box::new(rhs),
+            },
+            Rule::bw_lshift => AstNode::BitwiseExpression {
+                lhs: Box::new(lhs),
+                op: BitwiseOperator::LeftShift,
+                rhs: Box::new(rhs),
+            },
+            Rule::bw_rshift => AstNode::BitwiseExpression {
+                lhs: Box::new(lhs),
+                op: BitwiseOperator::RightShift,
                 rhs: Box::new(rhs),
             },
             _ => unreachable!(),
@@ -851,49 +977,74 @@ fn parse_logic_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
 
     let infix = |lhs: AstNode, op: pest::iterators::Pair<Rule>, rhs: AstNode| {
         match op.as_rule() {
-            Rule::log_and => AstNode::BitwiseExpression {
+            Rule::log_and => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::And,
+                op: LogicOperator::And,
                 rhs: Box::new(rhs),
             },
-            Rule::log_or => AstNode::BitwiseExpression {
+            Rule::log_or => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::Or,
+                op: LogicOperator::Or,
                 rhs: Box::new(rhs),
             },
-            Rule::log_xor => AstNode::BitwiseExpression {
+            Rule::log_xor => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::Xor,
+                op: LogicOperator::Xor,
                 rhs: Box::new(rhs),
             },
-            Rule::log_eq => AstNode::BitwiseExpression {
+            Rule::log_eq => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::Equal,
+                op: LogicOperator::Equal,
                 rhs: Box::new(rhs),
             },
-            Rule::log_ne => AstNode::BitwiseExpression {
+            Rule::log_ne => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::NotEqual,
+                op: LogicOperator::NotEqual,
                 rhs: Box::new(rhs),
             },
-            Rule::log_gt => AstNode::BitwiseExpression {
+            Rule::log_gt => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::GreaterThan,
+                op: LogicOperator::GreaterThan,
                 rhs: Box::new(rhs),
             },
-            Rule::log_lt => AstNode::BitwiseExpression {
+            Rule::log_lt => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::LessThan,
+                op: LogicOperator::LessThan,
                 rhs: Box::new(rhs),
             },
-            Rule::log_ge => AstNode::BitwiseExpression {
+            Rule::log_ge => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::GreaterEqual,
+                op: LogicOperator::GreaterEqual,
                 rhs: Box::new(rhs),
             },
-            Rule::log_le => AstNode::BitwiseExpression {
+            Rule::log_le => AstNode::LogicExpression {
                 lhs: Box::new(lhs),
-                op: BitwiseOperator::LessEqual,
+                op: LogicOperator::LessEqual,
+                rhs: Box::new(rhs),
+            },
+            _ => unreachable!(),
+        }
+    };
+
+    climber.climb(pair, primary, infix)
+}
+
+fn parse_pipe_forward_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
+    let climber = PrecClimber::new(vec![
+        Operator::new(Rule::pipe_forward_operator, Assoc::Left),
+    ]);
+
+    let primary = |pair: pest::iterators::Pair<Rule>| {
+        match pair.as_rule() {
+            Rule::pipe_forward_expression => parse_pipe_forward_expression(pair.into_inner()),
+            _ => build_ast_from_expr(pair),
+        }
+    };
+
+    let infix = |lhs: AstNode, op: pest::iterators::Pair<Rule>, rhs: AstNode| {
+        match op.as_rule() {
+            Rule::pipe_forward_operator => AstNode::PipeForwardExpression {
+                lhs: Box::new(lhs),
                 rhs: Box::new(rhs),
             },
             _ => unreachable!(),
