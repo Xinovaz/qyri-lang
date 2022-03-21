@@ -122,7 +122,6 @@ pub enum Statement {
 fn main() {
     let machine: ArcVM<Stdin, Stdout> = ArcVM::default(stdin(), stdout());
 
-    //todo: make this program a command-line program
     let path = std::env::args().nth(1).expect("no file to run given");
 
     let unparsed_file = fs::read_to_string(path).expect("cannot read file");

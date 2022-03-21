@@ -1,3 +1,5 @@
+use std::fs;
+
 extern crate pest;
 #[macro_use]
 extern crate pest_derive;
@@ -78,6 +80,10 @@ pub enum AstNode {
         array: Box<AstNode>,
         indices: Vec<Box<AstNode>>,
     },
+    AssociatedTerm {
+        parent: Box<AstNode>,
+        name: Box<AstNode>,
+    },
 
     // Canonical abstractions
     Array {
@@ -138,6 +144,15 @@ pub enum AstNode {
         rhs: Box<AstNode>,
     },
     PipeForwardExpression {
+        lhs: Box<AstNode>,
+        rhs: Box<AstNode>,
+    },
+    InfixExpression {
+        lhs: Box<AstNode>,
+        op: Box<AstNode>,
+        rhs: Box<AstNode>,
+    },
+    RangeExpression {
         lhs: Box<AstNode>,
         rhs: Box<AstNode>,
     },
@@ -218,10 +233,12 @@ pub enum AstNode {
 
 
 fn main() {
-    let source = std::fs::read_to_string("main.qi").expect("Cannot read given Qyri file");
+    let path = std::env::args().nth(1).expect("no file to run given");
+
+    let source = fs::read_to_string(path).expect("cannot read file");
+
     match parse(&source) {
         Ok(program) => {
-            println!("Parsed successfully");
             for ast_node in program {
                 println!("{:#?}", ast_node);
             }
@@ -354,8 +371,11 @@ fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> AstNode {
         Rule::logic_expression => {
             parse_logic_expression(pair.into_inner())
         },
-        Rule::pipe_forward_expression => {
-            parse_pipe_forward_expression(pair.into_inner())
+        Rule::functional_expression => {
+            parse_functional_expression(pair.into_inner())
+        },
+        Rule::assoc_expression => {
+            parse_assoc_expression(pair.into_inner())
         },
         Rule::declaration_generic_structure => {
             let mut pair = pair.into_inner();
@@ -477,11 +497,11 @@ fn build_ast_from_term(pair: pest::iterators::Pair<Rule>) -> AstNode {
         Rule::array_access => {
             let mut pair = pair.into_inner();
             let array = pair.next().unwrap();
-            let expr = pair.next();
+            let elements = pair.next();
             AstNode::ArrayElement {
                 array: Box::new(build_ast_from_expr(array)),
-                indices: match expr {
-                    Some(p) => build_vec_from_formals(p),
+                indices: match elements {
+                    Some(p) => build_vec_from_element_accessors(p),
                     None => Vec::new(),
                 },
             }
@@ -676,6 +696,16 @@ fn build_vec_from_canonical_fields(fields: pest::iterators::Pair<Rule>) -> Vec<B
     for p in QyriParser::parse(Rule::new_structure_fields, &fields.as_str()).unwrap() {
         for pair in p.into_inner() {
             buffer.push(Box::new(build_ast_from_separate(pair)));
+        }
+    }
+    buffer
+}
+
+fn build_vec_from_element_accessors(accessors: pest::iterators::Pair<Rule>) -> Vec<Box<AstNode>> {
+    let mut buffer: Vec<Box<AstNode>> = Vec::new();
+    for p in QyriParser::parse(Rule::array_access_terms, &accessors.as_str()).unwrap() {
+        for pair in p.into_inner() {
+            buffer.push(Box::new(build_ast_from_expr(pair)));
         }
     }
     buffer
@@ -970,7 +1000,7 @@ fn parse_logic_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
 
     let primary = |pair: pest::iterators::Pair<Rule>| {
         match pair.as_rule() {
-            Rule::bitwise_expression => parse_logic_expression(pair.into_inner()),
+            Rule::logic_expression => parse_logic_expression(pair.into_inner()),
             _ => build_ast_from_expr(pair),
         }
     };
@@ -1029,23 +1059,59 @@ fn parse_logic_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
     climber.climb(pair, primary, infix)
 }
 
-fn parse_pipe_forward_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
+fn parse_functional_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
     let climber = PrecClimber::new(vec![
+        Operator::new(Rule::range_operator, Assoc::Left),
+        Operator::new(Rule::infix_operator, Assoc::Left),
         Operator::new(Rule::pipe_forward_operator, Assoc::Left),
     ]);
 
     let primary = |pair: pest::iterators::Pair<Rule>| {
         match pair.as_rule() {
-            Rule::pipe_forward_expression => parse_pipe_forward_expression(pair.into_inner()),
+            Rule::functional_expression => parse_functional_expression(pair.into_inner()),
             _ => build_ast_from_expr(pair),
         }
     };
 
     let infix = |lhs: AstNode, op: pest::iterators::Pair<Rule>, rhs: AstNode| {
         match op.as_rule() {
+            Rule::range_operator => AstNode::RangeExpression {
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            },
+            Rule::infix_operator => AstNode::InfixExpression {
+                lhs: Box::new(lhs),
+                op: Box::new(build_ast_from_expr(op.into_inner().next().unwrap())),
+                rhs: Box::new(rhs),
+            },
             Rule::pipe_forward_operator => AstNode::PipeForwardExpression {
                 lhs: Box::new(lhs),
                 rhs: Box::new(rhs),
+            },
+            _ => unreachable!(),
+        }
+    };
+
+    climber.climb(pair, primary, infix)
+}
+
+fn parse_assoc_expression(pair: pest::iterators::Pairs<Rule>) -> AstNode {
+    let climber = PrecClimber::new(vec![
+        Operator::new(Rule::assoc_operator, Assoc::Left),
+    ]);
+
+    let primary = |pair: pest::iterators::Pair<Rule>| {
+        match pair.as_rule() {
+            Rule::assoc_expression => parse_assoc_expression(pair.into_inner()),
+            _ => build_ast_from_expr(pair),
+        }
+    };
+
+    let infix = |lhs: AstNode, op: pest::iterators::Pair<Rule>, rhs: AstNode| {
+        match op.as_rule() {
+            Rule::assoc_operator => AstNode::AssociatedTerm {
+                parent: Box::new(lhs),
+                name: Box::new(rhs),
             },
             _ => unreachable!(),
         }

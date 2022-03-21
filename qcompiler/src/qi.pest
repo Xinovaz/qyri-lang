@@ -9,10 +9,11 @@ string = { "\"" ~ (!NEWLINE ~ !"\"" ~ ANY)* ~ "\"" }
 
 
 array = { "[" ~ formal_parameters? ~ ","? ~ "]" }
-array_access = { term_sub ~ "[" ~ formal_parameters ~ "]" }
+array_access_terms = { expr ~ ("][" ~ expr)* }
+array_access = { term_sub ~ "[" ~ array_access_terms? ~ "]" }
 
 
-identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_" | ".")* }
+identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
 typed_identifier = { identifier ~ ("<" ~ typed_identifier ~ ("," ~ typed_identifier)* ~ ">")? }
 canonical_identifier = { identifier ~ ":" ~ (typed_identifier | identifier) }
 
@@ -61,12 +62,22 @@ logic_expression = { term ~ (logic_operation ~ term)+ }
 
 not_expression = ${ "!" ~ term }
 
+pipe_forward_operator = { "|>" }
+range_operator = { ".." }
+infix_operator = { "`" ~ expr ~ "`" }
+functional_operator = _{ 
+	pipe_forward_operator 	| 
+	range_operator 			| 
+	infix_operator 
+}
+functional_expression = { term ~ (functional_operator ~ term)+ }
+
+assoc_operator = { "." }
+assoc_all = _{ assoc_operator }
+assoc_expression = { term ~ (assoc_all ~ term)+ }
+
 
 structure_frame_expression = { identifier ~ "->" ~ ("{" ~ code_loud ~ "}" | expr) }
-
-
-pipe_forward_operator = { "|>" }
-pipe_forward_expression = { term ~ (pipe_forward_operator ~ term)* }
 
 
 informal_parameters = { (canonical_identifier ~ ",")* ~ canonical_identifier }
@@ -105,7 +116,7 @@ declaration_generic_structure = { "struct" ~ (canonical_identifier | identifier)
 declaration_structure = { declaration_generic_structure ~ "=" ~ structure_fields }
 
 enumeration_variants = { "{" ~ identifier ~ ("," ~ identifier)* ~ ","? ~ "}" }
-declaration_generic_enumeration = { "enum" ~ identifier }
+declaration_generic_enumeration = { "enum" ~ (canonical_identifier | identifier) }
 declaration_enumeration = { declaration_generic_enumeration ~ "=" ~ enumeration_variants }
 
 
@@ -145,7 +156,8 @@ expr = {
 	arithmetic_expression 			|
 	bitwise_expression				|
 	logic_expression				|
-	pipe_forward_expression			|
+	functional_expression			|
+	assoc_expression				|
 	closure 						|
 	not_expression					|
 	negative_expression				|

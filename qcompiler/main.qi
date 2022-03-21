@@ -1,30 +1,3 @@
-using std.stdout.write;
+fn main = () {
 
-struct Point = {
-	x: int,
-	y: int,
-}
-
-Point -> {
-	fn new = (x: int, y: int) $ Point {
-		return Point {
-			x -> x,
-			y -> y,
-		};
-	}
-}
-
-enum Coin = {
-	Penny,
-	Nickel,
-	Dime,
-	Quarter,
-}
-
-fn ~main = () {
-	write("Hello, world!");
-	var p: Point = Point(1, 2);
-	var c = Coin.Penny;
-	var a = [1, 2, 3];
-	var b = a[0][-1];
 }
