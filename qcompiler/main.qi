@@ -1,3 +1,10 @@
-fn main = () {
+something("hello", there);
+3.14159265358979323;
+sam;
+"the man";
+'h';
 
-}
+255;
+65212;
+69843327;
+nothing();

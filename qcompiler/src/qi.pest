@@ -6,6 +6,7 @@ integer = ${ (ASCII_DIGIT | "_")+ }
 float = ${ integer ~ "." ~ integer }
 
 string = { "\"" ~ (!NEWLINE ~ !"\"" ~ ANY)* ~ "\"" }
+chstring = { "'" ~ (!NEWLINE ~ !"'" ~ ANY) ~ "'" }
 
 
 array = { "[" ~ formal_parameters? ~ ","? ~ "]" }
@@ -17,7 +18,7 @@ identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
 typed_identifier = { identifier ~ ("<" ~ typed_identifier ~ ("," ~ typed_identifier)* ~ ">")? }
 canonical_identifier = { identifier ~ ":" ~ (typed_identifier | identifier) }
 
-term_sub = _{ float | integer | call_function | new_structure | string | array | identifier | "(" ~ expr ~ ")" }
+term_sub = _{ float | integer | call_function | new_structure | string | chstring | array | identifier | "(" ~ expr ~ ")" }
 term = { array_access | term_sub }
 
 
