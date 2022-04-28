@@ -1,8 +1,28 @@
 /* program test -- QLL 1.0 */
 
+:assembly[package]
+.public:
+	:assembly[flags]
+	.public.flags:
+		addr 0
+	  /*[~~~~~~~~~~~~~version number~~~~~~~~~~~~~]*/
+		$$pushi 1; $$pushi 0; $$pushi 0; $$pushi 1
+		$$pushi 0; $$pushi 1; $$pushi 1; $$pushi 0
+	  /*[pshilgls]~[admnprms]~[rlswarns]~[wrnerrs]*/
+		:transaction[read]
+		.assoc.public.flags._read:
+			$$pushi 8
+			$$pushi 1
+			$$out 2
+		.assoc.public.flags._override:
+			$$pushi 8
+			$$pushi 0
+			$$out 2
+	return
+
 :illegal[builtin]
 .func.print:
-	$$jmpz 4
+	$$jmpz 28
 	$out
 	call .func.print
 	return
