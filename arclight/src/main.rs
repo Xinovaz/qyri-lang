@@ -20,6 +20,14 @@ use pest::error::Error;
 pub struct QLLParser;
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum DecoratorForm {
+    Illegal,
+    Generic,
+    Assembly,
+    Transaction,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum StackInstruction {
     PushI,
     Push,
@@ -113,7 +121,10 @@ pub enum Statement {
         addr: usize,
     },
 
-
+    Decorator {
+        form: DecoratorForm,
+        param: String,
+    },
 
     Nop(Rule),
 }
@@ -193,8 +204,31 @@ fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> Statement {
             let mut pair = pair.into_inner();
             let addr = pair.next().unwrap(); // Address
             parse_setwaddr(addr)
-        }
+        },
+        Rule::decorator => {
+            let mut pair = pair.into_inner();
+            let form = pair.next().unwrap();
+            let param = pair.next().unwrap();
+            parse_decorator(form, param)
+        },
         _ => { Statement::Nop(pair.as_rule()) }
+    }
+}
+
+fn parse_decorator(
+    form: pest::iterators::Pair<Rule>,
+    param: pest::iterators::Pair<Rule>,
+    ) -> Statement {
+    let f = match form.as_str() {
+        "illegal" => DecoratorForm::Illegal,
+        "generic" => DecoratorForm::Generic,
+        "assembly" => DecoratorForm::Assembly,
+        "transaction" => DecoratorForm::Transaction,
+        _ => unreachable!(),
+    };
+    Statement::Decorator {
+        form: f,
+        param: param.as_str().to_string(),
     }
 }
 
@@ -431,6 +465,9 @@ fn execute_statement(idx: usize, mut machine: ArcVM<Stdin, Stdout>, program: &Ve
         },
         Statement::SetWorkingAddress { addr } => {
             machine.program_memory.address_register = *addr;
+        },
+        Statement::Decorator { form: _, param: _ } => {
+            ()
         },
         Statement::Nop(_) => (),
     };

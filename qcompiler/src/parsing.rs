@@ -13,7 +13,7 @@ use pest::prec_climber::{
 #[grammar = "qi.pest"]
 pub struct QyriParser;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ArithmeticOperator {
     Add,
     Subtract,
@@ -22,7 +22,7 @@ pub enum ArithmeticOperator {
     Modulus,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum BitwiseOperator {
     And,
     Or,
@@ -31,7 +31,7 @@ pub enum BitwiseOperator {
     RightShift,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LogicOperator {
     And,
     Or,
@@ -44,7 +44,7 @@ pub enum LogicOperator {
     LessEqual,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AstNode {
     // Unit nodes
     Integer {

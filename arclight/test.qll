@@ -1,75 +1,43 @@
-/* program main -- QLL 1.0 */
+/* program test -- QLL 1.0 */
 
-.func.print:							// fn print str null
-	$$jmpz 3
+:illegal[builtin]
+.func.print:
+	$$jmpz 4
 	$out
 	call .func.print
 	return
 
-.struct.Car:							// struct Car
+.struct.Foo:
+	.assoc.Foo.Add:
+		alloc int
+		$pop									
 
-	.assoc.Car.new:						// wrap ctr Car int int Car
-		call .assoc.Car.Car
-		return
-
-	.assoc.Car.Car:						// ctr Car
-		// load param sn
 		next int
 		alloc int
-		$pop
-		// load param hp
+		$pop									
+
+		back int	
+
+		$push		
+
 		next int
-		alloc int
-		$pop
+		$push		
 
-		$push
-		next int
-		$push
+		$add		
 
-		return
+		return		
 
-	.method.Car.flip:
-		// synsgr gcollect
-		$push
-		next int
-		$push
-
-		$over
-
-		return
-
-.enum.Foo:								// enum Foo 16
-.variant.Foo.Bar:; $$pushi 0; return 	// variant Bar Foo 0
-.variant.Foo.Baz:; $$pushi 1; return 	// variant Baz Foo 1
-.variant.Foo.Bat:; $$pushi 2; return 	// variant Bat Foo 2
-
-.func.main:								// fn main null
+.func.main:
 	call main
 	return
 
-main:									// main
+main:
 	addr 16
 
-	$$pushi 101
-	$$pushi 100
-	call .assoc.Car.new					// ct Car
-	addr 20
-	alloc int
-	$pop
-	addr 24
-	alloc int
-	$pop
+	$$pushi 0; $$pushi 10;
+	$$pushi 33; $$pushi 100; $$pushi 108; $$pushi 114; $$pushi 111; $$pushi 119;
+	$$pushi 32; $$pushi 44; $$pushi 111; $$pushi 108; $$pushi 108; $$pushi 101;
+	$$pushi 72;
 
-	addr 20
-	call .method.Car.flip
-	$drop // gcollect
-	addr 32
-	$pop
-	addr 36
-	$pop
-
-	addr 40
-	call .variant.Foo.Bar
-	$pop
-
+	call .func.print
 	return

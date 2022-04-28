@@ -1,10 +1,10 @@
-something("hello", there);
-3.14159265358979323;
-sam;
-"the man";
-'h';
+using std.stdout.write;
 
-255;
-65212;
-69843327;
-nothing();
+fn multiply = (a: byte, b: float) $ byte {
+	return a * b;
+}
+
+fn main = () {
+	var x = 5;
+	std.stdout.write([x `multiply` 2]); // prints newline to terminal
+}
