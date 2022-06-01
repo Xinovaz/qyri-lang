@@ -1,10 +1,4 @@
-using std.stdout.write;
-
-fn multiply = (a: byte, b: float) $ byte {
-	return a * b;
-}
-
-fn main = () {
-	var x = 5;
-	std.stdout.write([x `multiply` 2]); // prints newline to terminal
-}
+var x = 255;
+var y = 256;
+var z = 122512;
+var f = 12.5;

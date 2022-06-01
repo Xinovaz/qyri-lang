@@ -11,41 +11,31 @@
 	  /*[pshilgls]~[admnprms]~[rlswarns]~[wrnerrs]*/
 		:transaction[read]
 		.assoc.public.flags._read:
+			addr 1
 			$$pushi 8
 			$$pushi 1
-			$$out 2
+			return
 		.assoc.public.flags._override:
+			addr 2
 			$$pushi 8
 			$$pushi 0
-			$$out 2
+			return
 	return
 
 :illegal[builtin]
 .func.print:
-	$$jmpz 28
+	$$jmpz 29
 	$out
 	call .func.print
-	return
+	return	
 
-.struct.Foo:
-	.assoc.Foo.Add:
-		alloc int
-		$pop									
 
+.struct.Car:
+	.assoc.func._ctor:
 		next int
-		alloc int
-		$pop									
+		$push
+		return
 
-		back int	
-
-		$push		
-
-		next int
-		$push		
-
-		$add		
-
-		return		
 
 .func.main:
 	call main
@@ -53,11 +43,9 @@
 
 main:
 	addr 16
-
-	$$pushi 0; $$pushi 10;
-	$$pushi 33; $$pushi 100; $$pushi 108; $$pushi 114; $$pushi 111; $$pushi 119;
-	$$pushi 32; $$pushi 44; $$pushi 111; $$pushi 108; $$pushi 108; $$pushi 101;
-	$$pushi 72;
-
+	
+	$$pushi 0
+	$$pushi 10
+	$$pushi 97
 	call .func.print
 	return
