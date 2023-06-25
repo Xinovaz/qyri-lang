@@ -1,5 +1,3 @@
-![alt text](https://github.com/Xinovaz/qyri-lang/blob/main/Sam_Candle_Q.png?raw=true)
-
 # What is this?
 Qyri, after "qiri," the Albanian word for "candle," is an in-depth and intelligent programming language, that boasts a clean syntax and a limitless ecosystem. Qyri reinforces good programming habits while still being intuitive and friendly.
 
